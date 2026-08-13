@@ -1,0 +1,132 @@
+.mapShell,
+.map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map {
+  z-index: 0;
+  background: #0a1a18;
+  font-family: var(--font-sans);
+}
+
+.map :global(.leaflet-tile-pane .leaflet-tile-container) {
+  filter: saturate(1.05) contrast(1.02) brightness(0.95);
+}
+
+.map :global(.leaflet-tile-pane .leaflet-tile) {
+  filter: none !important;
+}
+
+.map :global(.leaflet-control-attribution) {
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(0, 0, 0, 0.45);
+  font-size: 8px;
+}
+
+.map :global(.leaflet-tooltip.mapFeatureLabel) {
+  pointer-events: none;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.map :global(.leaflet-tooltip) {
+  color: #e8f4f2;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: rgba(8, 28, 30, 0.92);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font-size: 11px;
+  font-weight: 650;
+  backdrop-filter: blur(8px);
+}
+
+.sensorMarker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.sensorLabel {
+  margin-top: 4px;
+  padding: 2px 6px;
+  color: #fff;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.72);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.scaleBar {
+  position: absolute;
+  z-index: 500;
+  right: 72px;
+  bottom: 88px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.scaleBarLine {
+  position: relative;
+  width: 72px;
+  height: 3px;
+  border-left: 2px solid rgba(255, 255, 255, 0.85);
+  border-right: 2px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.scaleBarLine::before {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 2px;
+  height: 11px;
+  background: rgba(255, 255, 255, 0.85);
+  transform: translateX(-50%);
+}
+
+.scaleBar span {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.compass {
+  position: absolute;
+  z-index: 500;
+  right: 72px;
+  bottom: 108px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 9px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.compassIcon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 10px;
+}

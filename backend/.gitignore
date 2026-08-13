@@ -1,0 +1,15 @@
+.env
+.pytest_cache/
+__pycache__/
+*.py[cod]
+.coverage
+htmlcov/
+.venv/
+.runtime/
+data/raw/*.geojson
+data/raw/*.tif
+data/reference/*.geojson
+data/processed/*.geojson
+data/processed/*.tif
+data/derived/*.csv
+artifacts/*.json

@@ -1,0 +1,21 @@
+Title: HACK-MM-001_PRES_v01
+
+5-minute recorded presentation script
+
+0:00-0:25 Team and project
+Hello, we are presenting FloodGuard Myanmar, a GeoAI flood susceptibility and early-warning MVP for Maubin Township in Ayeyarwady Region. The project focuses on turning geospatial evidence, rainfall information, historical flood labels, and future local sensor readings into clear map-based decision support.
+
+0:25-1:05 Problem
+Flood-prone communities need localized and understandable information before water becomes dangerous. Satellite and reanalysis data are useful, but they are delayed, coarse, or historical. Local teams therefore need a system that separates current conditions, historical susceptibility, forecast rainfall, and model limitations instead of presenting one black-box warning.
+
+1:05-2:10 Data and GeoAI method
+Our MVP builds a PostGIS spatial dataset for Maubin Township. It uses township boundaries, Copernicus DEM GLO-30 elevation, OpenStreetMap waterways, ESA WorldCover land cover, ERA5 rainfall history, Open-Meteo forecast rainfall, and Global Flood Database historical events. The first model layer is an explainable terrain screening score based on low relative elevation, proximity to waterways, and local flatness. The second layer adds historical flood susceptibility and rainfall-aligned event hindcast models for grid cells and historical flood events.
+
+2:10-3:35 Prototype demonstration
+In the dashboard, users can open the Maubin map, switch between elevation, susceptibility, land cover, waterways, historical flood, ML probability, and event hindcast layers, then click a cell to inspect the evidence behind the score. The same API data can be viewed in 2D Leaflet, MapLibre 3D terrain, and Cesium globe views. The backend exposes FastAPI endpoints for health, spatial assets, terrain screening, rainfall history, flood extents, flood ML outputs, sensor stations, observations, alerts, and live WebSocket updates.
+
+3:35-4:25 Benefits and impact
+The value is practical prioritization. Local responders can identify which cells and waterways need field verification, where sensors should be placed, and which communities may need closer monitoring. The system also makes provenance and limitations visible, which reduces the risk of treating an experimental model as an official warning.
+
+4:25-5:00 Limitations and next steps
+This MVP is not yet a certified operational forecast. It does not yet predict flood depth, arrival time, levee failure, drainage capacity, tide effects, or calibrated live sensor forecasts. The next steps are physical sensor deployment, external validation, false-alarm reduction, human review workflows, messaging channels, authentication, and expansion to other townships. The approach is scalable because the same data pipeline can be repeated with new boundaries, local observations, and updated model labels.

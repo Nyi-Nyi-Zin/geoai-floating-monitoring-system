@@ -1,0 +1,28 @@
+Suggested form fields for ASEAN GeoAI Fusion 2026
+
+Project title:
+FloodGuard Myanmar: GeoAI Flood Susceptibility and Early Warning MVP
+
+Short summary:
+GeoAI flood susceptibility and early-warning MVP for Maubin Township using PostGIS, historical flood evidence, rainfall data, 2D/3D map visualization, and future IoT sensor ingestion.
+
+Repository URL:
+Add your repository URL here before final submission.
+
+Recorded presentation title:
+HACK-MM-001_PRES_v01
+
+Recorded presentation link:
+Record the 5-minute presentation using the provided script, upload it to an accessible link, and paste that link into the submission form.
+
+AI Usage Declaration:
+AI tools were used to assist with drafting, coding support, and preparation of submission materials. The team reviewed and remains responsible for the final technical claims, prototype behavior, and submitted content.
+
+Dataset Usage Rights Declaration:
+The project uses public or open geospatial, weather, satellite, and community-mapped datasets with attribution and licence constraints. The team should confirm public-use permission and licence compliance before final publication or deployment.
+
+Originality and Intellectual Property Declaration:
+The prototype integration, application code, and submission materials are original team work unless noted. Third-party datasets, map tiles, libraries, and services retain their original licences and attribution requirements.
+
+Compliance with AGAIF Terms and Conditions:
+The team should review and confirm all ASEAN GeoAI Fusion 2026 requirements, terms, deadlines, file naming, versioning, and accessibility requirements before selecting Submit Final.
