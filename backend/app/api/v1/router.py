@@ -13,6 +13,7 @@ from app.api.v1.routes import (
     hydro_observations,
     live,
     mqtt,
+    observed_water_extents,
     sensor_stations,
     weather,
 )
@@ -29,6 +30,7 @@ api_router.include_router(forecast.router)
 api_router.include_router(geo_assets.router)
 api_router.include_router(hydro_observations.router)
 api_router.include_router(live.router)
+api_router.include_router(observed_water_extents.router)
 api_router.include_router(mqtt.router)
 api_router.include_router(sensor_stations.stations_router)
 api_router.include_router(sensor_stations.readings_router)

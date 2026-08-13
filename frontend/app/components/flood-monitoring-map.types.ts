@@ -2,6 +2,7 @@ export type LayerVisibility = {
   floodRisk: boolean;
   gridCells: boolean;
   buildings: boolean;
+  currentWater: boolean;
   historicalFlood: boolean;
   hand: boolean;
   rivers: boolean;

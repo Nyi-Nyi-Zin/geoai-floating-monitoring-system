@@ -78,6 +78,7 @@ export const mm = {
     layerGridCells: "Grid Cells",
     layerBuildings: "Buildings",
     layerHistoricalFlood: "Historical Flood",
+    layerCurrentWater: "Current Water",
     layerHand: "HAND",
     layerRivers: "Rivers",
     layerCanals: "Canals",
@@ -122,6 +123,8 @@ export const mm = {
     waterwayDistance: "Distance to waterway",
     forecastBand: "Forecast band",
     historicalEvents: "Historical flood events",
+    currentWaterHint:
+      "{date} တွင် satellite imagery မှ observe လုပ်ထားသော water surface ({source} · {method})။ OSM river network မဟုတ်ပါ။",
     screeningScore: "Screening score",
   },
   demo: {
@@ -198,6 +201,9 @@ export const mm = {
       floodHistory: "Satellite-observed historical flood labels ပြရန်",
       floodHistoryLoading: "Historical flood labels ဖတ်နေသည်…",
       floodHistoryImport: "Verified Maubin flood extent import လုပ်ပြီး layer ဖွင့်ပါ",
+      currentWater: "Observation date တွင် satellite-observed open water",
+      currentWaterImport: "Sentinel/OpenGeoAI observed water extent import လုပ်ရန်",
+      currentWaterLoading: "Observed water extents ဖတ်နေသည်…",
     },
     loadingDem: "30 m DEM screening cells ဖတ်နေသည်…",
     loadingMap: "Interactive map ဖတ်နေသည်…",

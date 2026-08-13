@@ -414,6 +414,16 @@ const FloodMonitoringMap = forwardRef<
     [assets],
   );
 
+  const observedWaterFeatures = useMemo(
+    () =>
+      assets
+        .filter(
+          (asset) => asset.properties.asset_type === "observed_water_extent",
+        )
+        .map(toFeature),
+    [assets],
+  );
+
   const roadFeatures = useMemo(
     () =>
       assets
@@ -445,6 +455,10 @@ const FloodMonitoringMap = forwardRef<
   const floodExtentCollection: FeatureCollection = {
     type: "FeatureCollection",
     features: floodExtentFeatures,
+  };
+  const observedWaterCollection: FeatureCollection = {
+    type: "FeatureCollection",
+    features: observedWaterFeatures,
   };
   const roadCollection: FeatureCollection = {
     type: "FeatureCollection",
@@ -684,6 +698,34 @@ const FloodMonitoringMap = forwardRef<
     leafletLayer.on("click", () => onSelect(asset));
   };
 
+  const styleObservedWaterExtent = (feature?: Feature): PathOptions => {
+    const id = String(feature?.id ?? "");
+    const selected = id === selectedId;
+    return {
+      color: selected ? "#ffffff" : "#1ea7d7",
+      weight: selected ? 3 : 2,
+      opacity: 0.95,
+      fillColor: "#42b8cc",
+      fillOpacity: selected ? 0.62 : 0.42,
+    };
+  };
+
+  const bindObservedWaterInteraction = (
+    feature: Feature,
+    leafletLayer: Layer,
+  ) => {
+    const asset = assetById.get(String(feature.id ?? ""));
+    if (!asset) return;
+    const observedAt = String(asset.properties.metadata.observed_at ?? "—");
+    const source = String(asset.properties.metadata.source ?? "—");
+    bindFeatureTooltip(
+      leafletLayer,
+      `${asset.properties.name} · ${observedAt} · ${source}`,
+      { enabled: visibility.labels, permanent: true },
+    );
+    leafletLayer.on("click", () => onSelect(asset));
+  };
+
   if (!mounted) {
     return (
       <div className={styles.mapShell}>
@@ -768,6 +810,14 @@ const FloodMonitoringMap = forwardRef<
             data={floodExtentCollection}
             style={styleFloodExtent}
             onEachFeature={bindFloodExtentInteraction}
+          />
+        ) : null}
+        {visibility.currentWater && observedWaterFeatures.length ? (
+          <GeoJSON
+            key={`observed-water-${observedWaterFeatures.length}-labels-${visibility.labels}`}
+            data={observedWaterCollection}
+            style={styleObservedWaterExtent}
+            onEachFeature={bindObservedWaterInteraction}
           />
         ) : null}
         {visibility.rivers && riverFeatures.length ? (

@@ -78,6 +78,7 @@ export const en = {
     layerGridCells: "Grid Cells",
     layerBuildings: "Buildings",
     layerHistoricalFlood: "Historical Flood",
+    layerCurrentWater: "Current Water",
     layerHand: "HAND",
     layerRivers: "Rivers",
     layerCanals: "Canals",
@@ -122,6 +123,8 @@ export const en = {
     waterwayDistance: "Distance to waterway",
     forecastBand: "Forecast band",
     historicalEvents: "Historical flood events",
+    currentWaterHint:
+      "As of {date}, this is the water surface observed from satellite imagery ({source} · {method}). This is not the mapped OSM river network.",
     screeningScore: "Screening score",
   },
   demo: {
@@ -198,6 +201,9 @@ export const en = {
       floodHistory: "Show satellite-observed historical flood labels",
       floodHistoryLoading: "Loading historical flood labels…",
       floodHistoryImport: "Import a verified Maubin flood extent to enable this layer",
+      currentWater: "Satellite-observed open water on the observation date",
+      currentWaterImport: "Import a Sentinel/OpenGeoAI observed water extent to enable this layer",
+      currentWaterLoading: "Loading observed water extents…",
     },
     loadingDem: "Loading 30 m DEM screening cells…",
     loadingMap: "Loading interactive map…",

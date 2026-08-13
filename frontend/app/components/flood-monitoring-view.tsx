@@ -19,6 +19,7 @@ import type {
   TerrainScreeningIndexItem,
 } from "@/lib/api";
 import { fetchFloodExtents } from "@/lib/flood-extents";
+import { fetchObservedWaterExtents } from "@/lib/observed-water-extents";
 import LanguageSwitcher from "./language-switcher";
 import CellDetailModal from "./cell-detail-modal";
 import type {
@@ -138,7 +139,7 @@ export default function FloodMonitoringView({
   error,
 }: DashboardData) {
   const router = useRouter();
-  const { t, formatNumber, formatDateTime } = useTranslation();
+  const { t, formatNumber, formatDate, formatDateTime } = useTranslation();
   const [isRefreshing, startRefresh] = useTransition();
   const mapRef = useRef<FloodMonitoringMapHandle>(null);
   const [basemapMode, setBasemapMode] = useState<BasemapMode>("satellite");
@@ -153,6 +154,15 @@ export default function FloodMonitoringView({
   const [floodExtents, setFloodExtents] = useState<GeoAsset[]>(
     initialFloodExtents,
   );
+  const [observedWaterExtents, setObservedWaterExtents] = useState<GeoAsset[]>(
+    [],
+  );
+  const [observedWaterSummary, setObservedWaterSummary] = useState<{
+    latest_observed_at: string | null;
+    latest_source: string | null;
+    latest_method: string | null;
+  } | null>(null);
+  const [observedWaterLoading, setObservedWaterLoading] = useState(true);
   const [terrainLoading, setTerrainLoading] = useState(
     initialTerrainCells.length === 0,
   );
@@ -160,6 +170,7 @@ export default function FloodMonitoringView({
     floodRisk: true,
     gridCells: false,
     buildings: false,
+    currentWater: false,
     historicalFlood: false,
     hand: false,
     rivers: true,
@@ -283,6 +294,50 @@ export default function FloodMonitoringView({
     };
   }, [initialFloodExtents.length, spatialApiUrl]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let retryDelay = INITIAL_RETRY_DELAY_MS;
+
+    const scheduleRetry = () => {
+      if (controller.signal.aborted) return;
+      retryTimer = setTimeout(() => {
+        retryTimer = null;
+        void loadObservedWaterExtents();
+      }, retryDelay);
+      retryDelay = Math.min(retryDelay * 1.5, MAX_RETRY_DELAY_MS);
+    };
+
+    const loadObservedWaterExtents = async () => {
+      setObservedWaterLoading(true);
+      try {
+        const result = await fetchObservedWaterExtents(
+          spatialApiUrl,
+          controller.signal,
+        );
+        setObservedWaterExtents(result.features);
+        setObservedWaterSummary(result.summary);
+        retryDelay = INITIAL_RETRY_DELAY_MS;
+      } catch {
+        if (!controller.signal.aborted) {
+          setObservedWaterExtents([]);
+          setObservedWaterSummary(null);
+          scheduleRetry();
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setObservedWaterLoading(false);
+        }
+      }
+    };
+
+    void loadObservedWaterExtents();
+    return () => {
+      controller.abort();
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [spatialApiUrl]);
+
   const terrainScreeningById = useMemo(() => {
     const map = new Map<string, TerrainScreeningIndexItem>();
     terrainScreening?.items.forEach((item) => map.set(item.id, item));
@@ -345,6 +400,7 @@ export default function FloodMonitoringView({
     [terrainCells],
   );
   const hasHistoricalFloodData = floodExtents.length > 0;
+  const hasObservedWaterData = observedWaterExtents.length > 0;
 
   const mappedAssets = useMemo(
     () => [
@@ -354,8 +410,9 @@ export default function FloodMonitoringView({
       ...filteredSegments,
       ...roadSegments,
       ...floodExtents,
+      ...observedWaterExtents,
     ],
-    [assets, filteredSegments, roadSegments, floodExtents],
+    [assets, filteredSegments, roadSegments, floodExtents, observedWaterExtents],
   );
 
   const assetById = useMemo(() => {
@@ -411,6 +468,14 @@ export default function FloodMonitoringView({
           : t("map.layerTitles.floodHistoryImport"),
       ],
       [
+        "currentWater",
+        t("monitoring.layerCurrentWater"),
+        hasObservedWaterData,
+        hasObservedWaterData
+          ? t("map.layerTitles.currentWater")
+          : t("map.layerTitles.currentWaterImport"),
+      ],
+      [
         "hand",
         t("monitoring.layerHand"),
         hasHandData,
@@ -436,6 +501,7 @@ export default function FloodMonitoringView({
     hasCanalData,
     hasHandData,
     hasHistoricalFloodData,
+    hasObservedWaterData,
     hasLandcoverData,
     hasRiverData,
     t,
@@ -726,6 +792,29 @@ export default function FloodMonitoringView({
             <p>{t("monitoring.terrainHint")}</p>
           ) : null}
         </section>
+
+        {visibility.currentWater ? (
+          <section className={styles.panel}>
+            <h3>{t("monitoring.layerCurrentWater")}</h3>
+            <div className={styles.legendList}>
+              <div className={styles.legendItem}>
+                <i className={styles.legendSwatch} style={{ background: "#42b8cc" }} />
+                {t("map.layerTitles.currentWater")}
+              </div>
+            </div>
+            <p>
+              {observedWaterLoading
+                ? t("map.layerTitles.currentWaterLoading")
+                : observedWaterSummary?.latest_observed_at
+                  ? t("monitoring.currentWaterHint", {
+                      date: formatDate(observedWaterSummary.latest_observed_at),
+                      source: observedWaterSummary.latest_source ?? "—",
+                      method: observedWaterSummary.latest_method ?? "—",
+                    })
+                  : t("map.layerTitles.currentWaterImport")}
+            </p>
+          </section>
+        ) : null}
 
         <section className={styles.panel}>
           <h3>{t("monitoring.layerControl")}</h3>

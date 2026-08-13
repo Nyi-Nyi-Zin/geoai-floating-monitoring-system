@@ -10,6 +10,7 @@ from app.models.flood_ml import (
 from app.models.forecast import ForecastPrediction, ForecastRun
 from app.models.geo_asset import GeoAsset
 from app.models.hydro_observation import HydroObservation
+from app.models.observed_water_extent import ObservedWaterExtent
 from app.models.rainfall_history import RainfallHistory
 from app.models.sensor_station import SensorStation
 
@@ -25,6 +26,7 @@ __all__ = [
     "ForecastRun",
     "GeoAsset",
     "HydroObservation",
+    "ObservedWaterExtent",
     "RainfallHistory",
     "SensorStation",
 ]
