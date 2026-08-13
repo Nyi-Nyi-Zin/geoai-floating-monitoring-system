@@ -70,7 +70,9 @@ export const mm = {
     floodRiskLegend: "ခန့်မှန်းထားသော ရေကြီးဖြစ်နိုင်ခြေ",
     floodRiskHint:
       "500 m grid model ရလဒ်များမှ smooth interpolation — visualization အတွက်သာ။ တိကျသော probability အတွက် cell ကို click လုပ်ပါ။",
-    learnMore: "Learn more",
+    learnMore: "Features နှင့် data အသေးစိတ်",
+    featuresGuide: "Features လမ်းညွှန်",
+    weatherGuide: "Weather forecast",
     layerControl: "Layer Control",
     layerFloodRisk: "Flood Risk",
     layerGridCells: "Grid Cells",
@@ -460,5 +462,451 @@ export const mm = {
   metadata: {
     title: "DeltaWatch | Maubin Flood Terrain",
     description: "မော်လမြိုင်မြို့နယ်အတွက် human-supervised flood terrain နှင့် drainage decision support။",
+  },
+  featuresPage: {
+    nav: {
+      subtitle: "Features နှင့် data လမ်းညွှန်",
+      backToMap: "Map သို့ ပြန်သွားရန်",
+    },
+    hero: {
+      eyebrow: "FloodGuard Myanmar · မော်လမြိုင်မြို့နယ်",
+      title: "Project features နှင့် data အသေးစိတ်",
+      lead:
+        "DeltaWatch ရေကြီးသတိပေးချက် platform အတွက် implement လုပ်ထားသော feature အားလုံး၊ dataset များ၊ API အပိုင်းများနှင့် known limitations ကို ဤ page တွင် စုစည်းဖော်ပြထားသည်။ (MMR017019 · ဧရာဝတီတိုင်း)",
+    },
+    overview: {
+      title: "Project အကျဉ်းချုပ်",
+      intro:
+        "FloodGuard သည် spatial database၊ GeoAI terrain screening၊ ယခင်ရေကြီးမှု evidence၊ rainfall data၊ ML models နှင့် IoT sensor plumbing ကို local demonstration platform တစ်ခုအဖြစ် ပေါင်းစပ်ထားသည်။",
+      item1: "PostgreSQL + PostGIS — boundary၊ terrain cells၊ waterways၊ flood extents၊ observations နှင့် provenance metadata သိမ်းဆည်းခြင်း",
+      item2: "Copernicus DEM GLO-30 — 500 m terrain screening (elevation၊ waterway proximity၊ flatness factors)",
+      item3: "OpenStreetMap rivers/canals၊ ESA WorldCover 2021၊ GFD historical floods၊ ERA5 rainfall၊ Open-Meteo forecasts",
+      item4: "ရေကြီးဆိုင်ရာ output ၃ မျိုး — terrain screening၊ historical susceptibility ML၊ event hindcast/forecast — ကွဲပြားသည်၊ မရောပါနှင့်",
+      item5: "Sensor stations၊ MQTT ingestion၊ WebSocket live updates၊ deterministic threshold alerts — API-ready",
+      item6: "Flood intelligence — ML + SAR fusion၊ building exposure၊ early-warning classification (limitations ပါ)",
+      disclaimer:
+        "ဤ project သည် hackathon MVP နှင့် local demonstration platform ဖြစ်သည်။ Production emergency-warning system မဟုတ်ပါ။",
+    },
+    status: {
+      title: "Feature status",
+      intro: "Repository တွင် verify လုပ်ထားသော လက်ရှိ implementation status။",
+      colArea: "အပိုင်း",
+      colStatus: "Status",
+      colDetail: "လက်ရှိလုပ်ဆောင်နိုင်မှု",
+      labels: {
+        ready: "အသုံးပြုနိုင်",
+        partial: "API / UI ready",
+        missing: "မရသေး",
+      },
+      areas: {
+        postgis: "PostgreSQL + PostGIS",
+        dashboard: "Dashboard",
+        map2d: "2D map",
+        map3d: "MapLibre 3D map",
+        cesium: "CesiumJS globe",
+        terrainScreening: "Terrain screening",
+        rainfallForecast: "Rainfall forecast",
+        rainfallHistory: "Historical rainfall",
+        historicalFlood: "Historical flood labels",
+        mlSusceptibility: "Historical ML susceptibility",
+        eventHindcast: "Event hindcast (v5)",
+        floodForecast: "Experimental flood forecast",
+        floodIntelligence: "Flood intelligence",
+        sensorIngestion: "Sensor ingestion",
+        liveChart: "Live water-level chart",
+        thresholdAlerts: "Threshold alerts",
+        floodPrediction: "Operational flood prediction",
+      },
+      details: {
+        postgis: "Boundary၊ terrain cells၊ waterways၊ flood extents၊ observations နှင့် metadata သိမ်းဆည်း/query လုပ်နိုင်သည်",
+        dashboard: "Maubin terrain၊ layers၊ rainfall၊ alerts နှင့် model outputs ကို map တွင် ကြည့်နိုင်သည်",
+        map2d: "Leaflet map — zoom၊ pan၊ layer switching၊ cell/segment inspection",
+        map3d: "MapLibre terrain — pitch၊ rotate၊ zoom၊ fullscreen၊ vertical exaggeration",
+        cesium: "WGS84 globe — satellite/streets basemap၊ streamed terrain၊ GeoAI overlays",
+        terrainScreening: "Elevation၊ water proximity၊ flatness ဖြင့် relative 0–100 priority score တွက်ခြင်း",
+        rainfallForecast: "Open-Meteo 1–7 day precipitation forecast (Maubin)",
+        rainfallHistory: "ERA5 daily rainfall 2015–2025 — 30/90/366-day dashboard windows",
+        historicalFlood: "GFD 2000–2018 frequency groups (1–8)၊ 473.488 km² — map layer နှင့် PostGIS",
+        mlSusceptibility: "5,549 cells — spatial test ROC-AUC 0.7782၊ PR-AUC 0.8111၊ F1 0.7462",
+        eventHindcast: "Rainfall-aligned v5 model — 17 GFD events၊ chronological holdouts",
+        floodForecast: "Open-Meteo input ဖြင့် experimental forecast runs — analysis only",
+        floodIntelligence: "ML + SAR fusion၊ exposure estimates၊ early-warning levels (API)",
+        sensorIngestion: "Station register နှင့် ESP32/MQTT/HTTP reading ingest",
+        liveChart: "Real readings ရှိလျှင် WebSocket update — synthetic interpolation မရှိ",
+        thresholdAlerts: "Sensor နှင့် thresholds configure လုပ်ထားလျှင် deterministic warning/danger/critical rules",
+        floodPrediction: "Certified flood probability၊ depth၊ extent၊ arrival-time prediction မရှိသေး",
+      },
+    },
+    floodProducts: {
+      title: "ရေကြီးဆိုင်ရာ output ၃ မျိုး",
+      intro: "Output တစ်ခုစီသည် မေးခွန်းတစ်မျိုးကို ဖြေသည်။ Operationally မရောပါနှင့်။",
+      terrain: {
+        title: "Terrain screening",
+        description:
+          "Relative 0–100 index — low elevation (55%)၊ waterway proximity (30%)၊ local flatness (15%)။ Sensor မရှိမီ inspection priority သတ်မှတ်ရန်။",
+        use: "Inspection priority",
+      },
+      susceptibility: {
+        title: "Historical susceptibility ML",
+        description:
+          "Static logistic model (maubin-flood-susceptibility-logistic-v1) — GFD frequency labels (cell ≥10% flooded) ဖြင့် train လုပ်ထား",
+        use: "ယခင်ရေကြီးဖြစ်နိုင်သော နေရာများ",
+      },
+      event: {
+        title: "Event hindcast / forecast",
+        description:
+          "Rainfall-aligned v5 model (maubin-flood-event-logistic-v5) — historical GFD events သို့မဟုတ် live Open-Meteo input။ Chronological holdouts",
+        use: "Experimental analysis",
+      },
+    },
+    dashboard: {
+      title: "Dashboard features",
+      intro: "http://127.0.0.1:3000 တွင် active map view နှင့် legacy full dashboard တွင် ရှိသော capabilities",
+      items: {
+        overview: {
+          title: "Overview cards",
+          description:
+            "Backend/PostGIS status၊ terrain-cell count၊ elevation range၊ waterway summary၊ VERY HIGH screening count၊ rainfall၊ stations၊ alerts",
+        },
+        map2d: {
+          title: "2D flood map",
+          description:
+            "Leaflet map — satellite/terrain basemaps၊ probability surface overlay၊ zoom/pan controls၊ coordinate readout",
+        },
+        layers: {
+          title: "Layer controls",
+          description:
+            "Flood risk၊ grid cells၊ land cover၊ historical flood၊ HAND၊ rivers၊ canals၊ roads၊ boundary၊ labels — independent toggle",
+        },
+        cellInspect: {
+          title: "Cell inspection",
+          description:
+            "Terrain cell click → detail modal — factor breakdown၊ ML probability၊ forecast output၊ explainability",
+        },
+        rainfall: {
+          title: "Rainfall widget",
+          description:
+            "Next-24-hour precipitation total နှင့် 7-day outlook (Open-Meteo) — probability ပါ",
+        },
+        detailsDrawer: {
+          title: "Details drawer",
+          description:
+            "System status၊ open alerts၊ risk basis၊ backend reconnect လျှင် manual refresh",
+        },
+        i18n: {
+          title: "English / Myanmar",
+          description: "UI language — English နှင့် Myanmar (မြန်မာ) ကြား switch လုပ်နိုင်သည်",
+        },
+      },
+    },
+    mapLayers: {
+      title: "Map layers အသေးစိတ်",
+      intro: "Layer တစ်ခုစီတွင် registered data၊ provenance၊ licence နှင့် known limitations ပါဝင်သည်",
+      items: {
+        floodRisk: {
+          title: "Flood risk overlay",
+          description:
+            "500 m grid model outputs မှ smooth probability surface။ Forecast → ML susceptibility → terrain screening auto-select",
+        },
+        gridCells: {
+          title: "Grid cells",
+          description:
+            "Maubin Township 500 m analysis cells — elevation stats နှင့် mapped waterways အကွာအဝေး",
+        },
+        landCover: {
+          title: "Land cover",
+          description:
+            "ESA WorldCover 2021 v200 — dominant class နှင့် percentage composition (tree cover၊ cropland၊ built-up၊ water၊ wetland)",
+        },
+        historicalFlood: {
+          title: "Historical flood",
+          description:
+            "Global Flood Database (GFD/MODIS) 2000–2018 — frequency composite နှင့် individual event polygons (Maubin clipped)",
+        },
+        hand: {
+          title: "HAND (Height Above Nearest Drainage)",
+          description: "Nearest drainage အပေါ် terrain-relative height — event models ML feature",
+        },
+        rivers: {
+          title: "Rivers",
+          description: "282 OSM river/stream segments — township clipped၊ segment max 500 m",
+        },
+        canals: {
+          title: "Canals & drains",
+          description: "21 OSM canal/drain segments — community-mapped၊ local channels အချို့ missing ဖြစ်နိုင်သည်",
+        },
+        roads: {
+          title: "Roads",
+          description: "OSM road network overlay — inspection အတွက် spatial context",
+        },
+        boundary: {
+          title: "Township boundary",
+          description: "MIMU Township Boundary 2020 — Maubin (MMR017019) WGS84",
+        },
+        elevation: {
+          title: "Elevation",
+          description:
+            "Copernicus DEM GLO-30 per cell — min/mean/max elevation၊ percentile၊ local relief၊ sample count",
+        },
+      },
+      terrainFormula: {
+        title: "Terrain screening formula",
+        intro: "Relative screening score 0–100 — flood probability၊ depth သို့မဟုတ် arrival time မဟုတ်ပါ",
+        colFactor: "Factor",
+        colWeight: "Weight",
+        colMeaning: "အဓိပ္ပာယ်",
+        factors: {
+          elevation: {
+            name: "Low relative elevation",
+            meaning: "Township အတွင်း အခြား cells ထက် နိမ့်ပါက contribution ပိုမြင့်",
+          },
+          waterway: {
+            name: "Waterway proximity",
+            meaning: "Mapped OSM rivers/canals နှင့် နီးပါက score ပိုမြင့်",
+          },
+          flatness: {
+            name: "Local flatness",
+            meaning: "Local relief နည်းပြီး မြေပြန့်ပါက score ပိုမြင့်",
+          },
+        },
+      },
+      scoreBands: {
+        title: "Score bands",
+        lower: "LOWER: 25 အောက်",
+        moderate: "MODERATE: 25 မှ 50 အောက်",
+        high: "HIGH: 50 မှ 75 အောက်",
+        veryHigh: "VERY HIGH: 75 နှင့်အထက်",
+      },
+    },
+    dataSources: {
+      title: "Data sources နှင့် provenance",
+      intro: "Active layer တစ်ခုစီ DataLayer catalog တွင် source၊ licence၊ quality status နှင့် usage constraints ဖြင့် register လုပ်ထား",
+      items: {
+        boundary: {
+          title: "Maubin township boundary",
+          description: "MIMU Township Boundary 2020 (MMR017019) WGS84 — operational reference၊ MIMU attribution လိုအပ်",
+          resolution: "Vector · 2020",
+          licence: "MIMU reference",
+        },
+        dem: {
+          title: "Copernicus DEM GLO-30",
+          description:
+            "30 m digital surface model → 500 m terrain cells — min/mean/max elevation၊ relief၊ percentile",
+          resolution: "30 m → 500 m cells",
+          licence: "Copernicus / EU-ESA",
+        },
+        osm: {
+          title: "OpenStreetMap waterways",
+          description:
+            "Rivers၊ streams၊ canals၊ drains — Maubin clipped၊ 500 m segments။ 282 river + 21 canal",
+          resolution: "Community vector",
+          licence: "ODbL",
+        },
+        worldcover: {
+          title: "ESA WorldCover 2021 v200",
+          description:
+            "10 m land-cover — dominant class၊ pixel counts၊ percentage composition per cell",
+          resolution: "10 m",
+          licence: "CC BY 4.0",
+        },
+        gfd: {
+          title: "Global Flood Database (GFD)",
+          description:
+            "MODIS-derived historical flood 2000–2018 — 17 individual events + 8 frequency groups (473.488 km²)",
+          resolution: "250 m satellite",
+          licence: "Research labels",
+        },
+        sar: {
+          title: "Sentinel-1 SAR labels",
+          description:
+            "Independent SAR flood labels — validation အတွက်။ Google Earth Engine export (optional) — docs/SAR_FLOOD_LABELS.md",
+          resolution: "10 m SAR",
+          licence: "Copernicus Sentinel",
+        },
+        era5: {
+          title: "ERA5 reanalysis rainfall",
+          description:
+            "Area-weighted daily rainfall 2015–2025 (9,497 rows) — model features/calibration အတွက်၊ local gauge မဟုတ်",
+          resolution: "~25 km",
+          licence: "Copernicus CDS",
+        },
+        openMeteo: {
+          title: "Open-Meteo forecast",
+          description: "Live 1–7 day precipitation forecast (Maubin) — weather-model output၊ observed rainfall မဟုတ်",
+          resolution: "Forecast grid",
+          licence: "Open-Meteo API",
+        },
+      },
+    },
+    inventory: {
+      title: "Dataset inventory",
+      intro: "Maubin geospatial pipeline (backend/data/) မှ key counts",
+      stats: {
+        terrainCells: "Terrain cells (500 m grid)",
+        riverSegments: "OSM river segments",
+        canalSegments: "OSM canal segments",
+        era5Rows: "ERA5 daily rainfall rows",
+        gfdEvents: "GFD individual flood events",
+        gfdGroups: "GFD frequency groups",
+        gfdArea: "GFD flooded area (frequency composite)",
+      },
+      terrainFields: {
+        title: "Terrain cell fields (500 m cell တစ်ခုလျှင်)",
+        item1: "elevation_mean_m, elevation_min_m, elevation_max_m",
+        item2: "elevation_percentile — township အတွင်း relative rank",
+        item3: "local_relief_m — cell အတွင်း elevation range",
+        item4: "distance_to_waterway_m — nearest mapped river/canal",
+        item5: "relief_angle_proxy — terrain slope indicator",
+        item6: "dem_sample_count — aggregated 30 m DEM pixels အရေအတွက်",
+      },
+      landCoverFields: {
+        title: "Land cover fields (cell တစ်ခုလျှင်)",
+        item1: "dominant_class — ESA WorldCover class code နှင့် label",
+        item2: "class_percentages — class အားလုံး၏ percentage composition",
+        item3: "pixel_counts — class တစ်ခုစီ၏ raw 10 m pixel counts",
+        item4: "Historical calibration မရှိဘဲ susceptibility score တွင် မပါဝင်",
+      },
+    },
+    api: {
+      title: "API reference",
+      intro: "FastAPI backend — http://127.0.0.1:8000/api/v1 · interactive docs: /docs",
+      groups: {
+        health: {
+          title: "Health & live infrastructure",
+          description: "Service health၊ MQTT bridge status၊ WebSocket live readings",
+          endpoints: "GET /health · GET /mqtt/status · WS /ws/live",
+        },
+        spatial: {
+          title: "Spatial assets",
+          description: "geo_assets CRUD၊ bbox search၊ bulk GeoJSON import",
+          endpoints: "POST/GET /geo-assets · GET /geo-assets/within-bounds · POST /geo-assets/import",
+        },
+        screening: {
+          title: "Screening evidence",
+          description: "Map-ready terrain scores နှင့် land-cover summary",
+          endpoints: "GET /flood-screening/terrain/index · GET /flood-screening/terrain · GET /flood-screening/land-cover/summary",
+        },
+        weather: {
+          title: "Weather & rainfall",
+          description: "Open-Meteo forecast နှင့် ERA5 historical rainfall (date range queries)",
+          endpoints: "GET /weather/rainfall-forecast · GET /weather/rainfall-history",
+        },
+        sensors: {
+          title: "Stations & observations",
+          description: "Station register၊ ESP32 reading ingest၊ hydro observations management",
+          endpoints: "POST/GET /stations · POST /readings · POST/GET /hydro-observations · GET /hydro-observations/latest",
+        },
+        alerts: {
+          title: "Threshold alerts",
+          description: "Configured station thresholds မှ deterministic MEDIUM/HIGH/CRITICAL alerts",
+          endpoints: "GET /alerts · PATCH /alerts/{id}/acknowledge",
+        },
+        catalog: {
+          title: "Data-layer catalog",
+          description: "Provenance records — source၊ licence၊ quality၊ limitations",
+          endpoints: "POST/GET /data-layers · GET/PATCH /data-layers/{id}",
+        },
+        floodMl: {
+          title: "Flood ML",
+          description: "Historical susceptibility၊ event hindcast predictions၊ model readiness",
+          endpoints: "GET /flood-ml/* · GET /flood-ml/event-readiness",
+        },
+        forecast: {
+          title: "Flood forecast",
+          description: "Experimental forecast runs — immutable input snapshots",
+          endpoints: "POST/GET /flood-forecast/*",
+        },
+        intelligence: {
+          title: "Flood intelligence",
+          description: "ML + SAR fusion၊ building exposure၊ early-warning classification",
+          endpoints: "GET /flood-intelligence/summary · GET /flood-intelligence/sar-validation · GET /flood-intelligence/exposure",
+        },
+      },
+    },
+    notAvailable: {
+      title: "မရသေးသော features",
+      intro: "Current MVP တွင် explicitly out of scope ဖြစ်သော capabilities",
+      items: {
+        depth: "Operational warnings အဖြစ် predicted flood depth နှင့် spatial extent",
+        arrival: "ဘယ်နေရာအရင်ရေမြုပ်မည်ဆိုသည့် arrival time သို့မဟုတ် sequence",
+        hydraulic: "Levees၊ drainage capacity၊ tide၊ soil ပါသော hydraulic model",
+        sentinelRealtime: "Sentinel-1 near-real-time inundation pipeline",
+        productionAlerts: "Telegram၊ WhatsApp၊ SMS production notification channels",
+        physicalSensors: "Calibrated hardware ပါသော physical ESP32 field deployment",
+      },
+    },
+    interpretation: {
+      title: "Result များကို မှန်ကန်စွာဖတ်ခြင်း",
+      intro: "Screening scores သို့မဟုတ် visualization ကို live flood warning အဖြစ် misinterpret မလုပ်ပါနှင့်",
+      items: {
+        veryHigh:
+          "VERY HIGH cell — နိမ့်၊ ရေလမ်းနှင့်နီး၊ မြေပြန့်သောကြောင့် အရင်စစ်ဆေးသင့်သော နေရာ — confirmed flooding မဟုတ်",
+        notPrediction: "Terrain screening နှင့် ML susceptibility — flood probability သို့မဟုတ် arrival-time prediction မဟုတ်",
+        visual3d: "3D relief နှင့် Cesium terrain — visualization context ဖြစ်ပြီး flood-water simulation မဟုတ်",
+        worldCover: "WorldCover — 2021 snapshot; OSM waterways တွင် local drains အချို့ missing ဖြစ်နိုင်သည်",
+        operational:
+          "Operational ဆုံးဖြတ်ချက်အတွက် field verification၊ official warnings၊ sensors နှင့် historical-flood validation လိုအပ်",
+      },
+    },
+    run: {
+      title: "Project run နည်း",
+      intro: "Backend (port 8000) နှင့် frontend (port 3000) ကို locally start လုပ်ပါ",
+      dashboard: "Dashboard: http://127.0.0.1:3000",
+      swagger: "Swagger API docs: http://127.0.0.1:8000/docs",
+      health: "Health check: http://127.0.0.1:8000/health",
+      features: "ဤလမ်းညွှန်: http://127.0.0.1:3000/features",
+      weather: "Weather forecast: http://127.0.0.1:3000/weather",
+    },
+    footer:
+      "© OpenStreetMap contributors · Boundary © MIMU · Terrain Copernicus DEM GLO-30 · WorldCover © ESA · Forecast Open-Meteo · ERA5 Copernicus CDS · Hackathon MVP — production emergency system မဟုတ်ပါ",
+  },
+  weatherPage: {
+    nav: {
+      subtitle: "Weather forecast နှင့် rainfall data",
+      backToMap: "Map သို့ ပြန်သွားရန်",
+    },
+    hero: {
+      eyebrow: "မော်လမြိုင်မြို့နယ် · Open-Meteo + ERA5",
+      title: "Rainfall forecast နှင့် historical baseline",
+      lead:
+        "Open-Meteo မှ live 7-day weather-model precipitation forecast နှင့် flood analysis model input အတွက် ERA5 reanalysis history.",
+    },
+    stats: {
+      next24h: "Next 24 hours (forecast)",
+      next7d: "Next 7 days (forecast total)",
+      peakProbability: "Peak daily rain probability",
+      era5WetDays: "ERA5 wet days (full record)",
+    },
+    forecast: {
+      title: "7-day rainfall forecast",
+      intro:
+        "GET /weather/rainfall-forecast မှ fetch လုပ်သည်။ Township-level weather-model output — local rain gauge မဟုတ်။",
+      fetched: "Fetched",
+      cached: "Cached response",
+      dailyPrecip: "Daily precipitation (mm)",
+      hourlyLine: "Hourly precipitation (next 48h)",
+      disclaimer:
+        "Forecast rainfall သည် weather-model scenario input ဖြစ်သည်။ ရေကြီးမှုကို confirm မလုပ်ပါ — evacuation ဆုံးဖြတ်ချက်အတွက် တစ်ခုတည်းသုံး မရပါ။",
+      unavailable:
+        "Forecast unavailable. Backend run ထားပြီး Open-Meteo reachable ဖြစ်ရမည်။",
+    },
+    history: {
+      title: "ERA5 historical rainfall",
+      intro:
+        "GET /weather/rainfall-history မှ area-weighted daily reanalysis — model calibration နှင့် antecedent accumulation features အတွက်။",
+    },
+    table: {
+      date: "Date",
+      precipSum: "Daily total",
+      probability: "Max probability",
+    },
+    api: {
+      title: "API endpoints used",
+      intro: "Refresh တိုင်း FastAPI weather routes မှ data load လုပ်သည်။",
+      note:
+        "Forecast — Open-Meteo (live). History — PostGIS ERA5 (~25 km reanalysis). Experimental flood forecast model inputs နှစ်ခုလုံး။",
+    },
+    footer:
+      "Forecast © Open-Meteo · Historical © Copernicus ERA5 · Certified meteorological warning service မဟုတ်ပါ။",
   },
 } as const;

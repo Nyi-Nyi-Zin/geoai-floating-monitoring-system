@@ -70,7 +70,9 @@ export const en = {
     floodRiskLegend: "Predicted Flood Probability",
     floodRiskHint:
       "Smooth surface interpolated from 500 m grid model outputs for visualization only. Click a cell for the exact predicted probability at that location.",
-    learnMore: "Learn more",
+    learnMore: "Features & data guide",
+    featuresGuide: "Features guide",
+    weatherGuide: "Weather forecast",
     layerControl: "Layer Control",
     layerFloodRisk: "Flood Risk",
     layerGridCells: "Grid Cells",
@@ -460,5 +462,450 @@ export const en = {
   metadata: {
     title: "DeltaWatch | Maubin Flood Terrain",
     description: "Human-supervised flood terrain and drainage decision support for Maubin Township.",
+  },
+  featuresPage: {
+    nav: {
+      subtitle: "Features & data guide",
+      backToMap: "Back to map",
+    },
+    hero: {
+      eyebrow: "FloodGuard Myanmar · Maubin Township",
+      title: "Project features and data reference",
+      lead:
+        "This page documents every implemented feature, dataset, API area, and known limitation in the DeltaWatch flood monitoring platform for Maubin Township (MMR017019), Ayeyarwady Region.",
+    },
+    overview: {
+      title: "Project overview",
+      intro:
+        "FloodGuard combines spatial databases, GeoAI terrain screening, historical flood evidence, rainfall data, ML models, and IoT sensor plumbing into a local demonstration platform.",
+      item1: "PostgreSQL + PostGIS stores boundaries, terrain cells, waterways, flood extents, observations, and provenance metadata.",
+      item2: "Copernicus DEM GLO-30 drives 500 m terrain screening with explainable elevation, waterway proximity, and flatness factors.",
+      item3: "OpenStreetMap rivers/canals, ESA WorldCover 2021, GFD historical floods, ERA5 rainfall, and Open-Meteo forecasts feed the dashboard.",
+      item4: "Three separate flood products — terrain screening, historical susceptibility ML, and event hindcast/forecast — must not be treated as interchangeable.",
+      item5: "Sensor stations, MQTT ingestion, WebSocket live updates, and deterministic threshold alerts are API-ready for field deployment.",
+      item6: "Flood intelligence fuses ML outputs, SAR validation, building exposure, and early-warning classification with explicit limitations.",
+      disclaimer:
+        "This is a hackathon MVP and local demonstration platform. It is not a production emergency-warning system.",
+    },
+    status: {
+      title: "Feature status",
+      intro: "Current implementation status as verified in the repository.",
+      colArea: "Area",
+      colStatus: "Status",
+      colDetail: "What you can do today",
+      labels: {
+        ready: "Available",
+        partial: "API / UI ready",
+        missing: "Not available",
+      },
+      areas: {
+        postgis: "PostgreSQL + PostGIS",
+        dashboard: "Dashboard",
+        map2d: "2D map",
+        map3d: "MapLibre 3D map",
+        cesium: "CesiumJS globe",
+        terrainScreening: "Terrain screening",
+        rainfallForecast: "Rainfall forecast",
+        rainfallHistory: "Historical rainfall",
+        historicalFlood: "Historical flood labels",
+        mlSusceptibility: "Historical ML susceptibility",
+        eventHindcast: "Event hindcast (v5)",
+        floodForecast: "Experimental flood forecast",
+        floodIntelligence: "Flood intelligence",
+        sensorIngestion: "Sensor ingestion",
+        liveChart: "Live water-level chart",
+        thresholdAlerts: "Threshold alerts",
+        floodPrediction: "Operational flood prediction",
+      },
+      details: {
+        postgis: "Store and query boundaries, terrain cells, waterways, flood extents, observations, and metadata.",
+        dashboard: "Inspect Maubin terrain, layers, rainfall, alerts, and model outputs on the map.",
+        map2d: "Leaflet map with zoom, pan, layer switching, and cell/segment inspection.",
+        map3d: "MapLibre terrain with pitch, rotate, zoom, fullscreen, and vertical exaggeration.",
+        cesium: "WGS84 globe with satellite/streets basemap, streamed terrain, and GeoAI overlays.",
+        terrainScreening: "Compute relative 0–100 priority scores from elevation, water proximity, and flatness.",
+        rainfallForecast: "Open-Meteo 1–7 day precipitation forecast for Maubin.",
+        rainfallHistory: "ERA5 daily rainfall 2015–2025 with 30/90/366-day dashboard windows.",
+        historicalFlood: "GFD 2000–2018 frequency groups (1–8), 473.488 km², as map layer and PostGIS records.",
+        mlSusceptibility: "5,549 cells, spatial test ROC-AUC 0.7782, PR-AUC 0.8111, F1 0.7462.",
+        eventHindcast: "Rainfall-aligned v5 model with chronological holdouts on 17 GFD events.",
+        floodForecast: "Trigger experimental forecast runs from Open-Meteo input — analysis only.",
+        floodIntelligence: "ML + SAR fusion, exposure estimates, and early-warning levels via API.",
+        sensorIngestion: "Register stations and ingest ESP32/MQTT/HTTP readings.",
+        liveChart: "WebSocket updates when real readings exist; no synthetic interpolation.",
+        thresholdAlerts: "Deterministic warning/danger/critical rules when sensors and thresholds are configured.",
+        floodPrediction: "No certified flood probability, depth, extent, or arrival-time prediction yet.",
+      },
+    },
+    floodProducts: {
+      title: "Three distinct flood products",
+      intro: "Each output answers a different question. Do not mix them operationally.",
+      terrain: {
+        title: "Terrain screening",
+        description:
+          "Relative 0–100 index from low elevation (55%), waterway proximity (30%), and local flatness (15%). Prioritizes cells for inspection before sensors exist.",
+        use: "Inspection priority",
+      },
+      susceptibility: {
+        title: "Historical susceptibility ML",
+        description:
+          "Static logistic model (maubin-flood-susceptibility-logistic-v1) trained on GFD frequency labels where ≥10% of a cell was historically flooded.",
+        use: "Past flood-prone areas",
+      },
+      event: {
+        title: "Event hindcast / forecast",
+        description:
+          "Rainfall-aligned v5 model (maubin-flood-event-logistic-v5) on historical GFD events or live Open-Meteo input. Chronological holdouts, never random cell splits.",
+        use: "Experimental analysis",
+      },
+    },
+    dashboard: {
+      title: "Dashboard features",
+      intro: "The active map view at http://127.0.0.1:3000 and the legacy full dashboard share these capabilities.",
+      items: {
+        overview: {
+          title: "Overview cards",
+          description:
+            "Backend/PostGIS status, terrain-cell count, elevation range, waterway summary, VERY HIGH screening count, rainfall, stations, and alerts.",
+        },
+        map2d: {
+          title: "2D flood map",
+          description:
+            "Leaflet map with satellite/terrain basemaps, probability surface overlay, zoom/pan controls, and coordinate readout.",
+        },
+        layers: {
+          title: "Layer controls",
+          description:
+            "Toggle flood risk, grid cells, land cover, historical flood, HAND, rivers, canals, roads, boundary, and labels independently.",
+        },
+        cellInspect: {
+          title: "Cell inspection",
+          description:
+            "Click a terrain cell to open the detail modal with factor breakdown, ML probability, forecast output, and explainability.",
+        },
+        rainfall: {
+          title: "Rainfall widget",
+          description:
+            "Next-24-hour precipitation total and 7-day outlook from Open-Meteo with probability where available.",
+        },
+        detailsDrawer: {
+          title: "Details drawer",
+          description:
+            "System status, open alerts, risk basis, and manual refresh when the backend reconnects.",
+        },
+        i18n: {
+          title: "English / Myanmar",
+          description: "Switch UI language between English and Myanmar (မြန်မာ) at any time.",
+        },
+      },
+    },
+    mapLayers: {
+      title: "Map layers explained",
+      intro: "Each layer uses registered data with provenance, licence, and known limitations.",
+      items: {
+        floodRisk: {
+          title: "Flood risk overlay",
+          description:
+            "Smooth probability surface interpolated from 500 m grid model outputs. Auto-selects forecast → ML susceptibility → terrain screening based on available data.",
+        },
+        gridCells: {
+          title: "Grid cells",
+          description: "500 m analysis cells covering Maubin Township. Each cell stores elevation stats and distance to mapped waterways.",
+        },
+        landCover: {
+          title: "Land cover",
+          description:
+            "ESA WorldCover 2021 v200 dominant class and percentage composition per cell — tree cover, cropland, built-up, water, wetland, etc.",
+        },
+        historicalFlood: {
+          title: "Historical flood",
+          description:
+            "Global Flood Database (GFD/MODIS) 2000–2018 frequency composite and individual event polygons clipped to Maubin.",
+        },
+        hand: {
+          title: "HAND (Height Above Nearest Drainage)",
+          description: "Terrain-relative height above nearest drainage used as an ML feature in event models.",
+        },
+        rivers: {
+          title: "Rivers",
+          description: "282 OSM river/stream segments clipped to the township, max 500 m per segment.",
+        },
+        canals: {
+          title: "Canals & drains",
+          description: "21 OSM canal/drain segments. Community-mapped — some local channels may be missing.",
+        },
+        roads: {
+          title: "Roads",
+          description: "OSM road network overlay for spatial context during inspection.",
+        },
+        boundary: {
+          title: "Township boundary",
+          description: "MIMU Township Boundary 2020 for Maubin (MMR017019) in WGS84.",
+        },
+        elevation: {
+          title: "Elevation",
+          description:
+            "Copernicus DEM GLO-30 summarized per cell: min/mean/max elevation, percentile, local relief, and sample count.",
+        },
+      },
+      terrainFormula: {
+        title: "Terrain screening formula",
+        intro: "Relative screening score 0–100. This is not flood probability, depth, or arrival time.",
+        colFactor: "Factor",
+        colWeight: "Weight",
+        colMeaning: "Meaning",
+        factors: {
+          elevation: {
+            name: "Low relative elevation",
+            meaning: "Cells lower than others in the township contribute more.",
+          },
+          waterway: {
+            name: "Waterway proximity",
+            meaning: "Closer to mapped OSM rivers/canals increases the score.",
+          },
+          flatness: {
+            name: "Local flatness",
+            meaning: "Low local relief and flat terrain increases the score.",
+          },
+        },
+      },
+      scoreBands: {
+        title: "Score bands",
+        lower: "LOWER: below 25",
+        moderate: "MODERATE: 25 to below 50",
+        high: "HIGH: 50 to below 75",
+        veryHigh: "VERY HIGH: 75 and above",
+      },
+    },
+    dataSources: {
+      title: "Data sources and provenance",
+      intro: "Every active layer is registered in the DataLayer catalog with source, licence, quality status, and usage constraints.",
+      items: {
+        boundary: {
+          title: "Maubin township boundary",
+          description: "MIMU Township Boundary 2020 (MMR017019), WGS84. Operational reference — requires MIMU attribution.",
+          resolution: "Vector · 2020",
+          licence: "MIMU reference",
+        },
+        dem: {
+          title: "Copernicus DEM GLO-30",
+          description:
+            "30 m digital surface model aggregated into 500 m terrain cells with min/mean/max elevation, relief, and percentile.",
+          resolution: "30 m → 500 m cells",
+          licence: "Copernicus / EU-ESA",
+        },
+        osm: {
+          title: "OpenStreetMap waterways",
+          description:
+            "Rivers, streams, canals, and drains clipped to Maubin, segmented at 500 m. 282 river + 21 canal segments.",
+          resolution: "Community vector",
+          licence: "ODbL",
+        },
+        worldcover: {
+          title: "ESA WorldCover 2021 v200",
+          description:
+            "10 m land-cover classification per terrain cell: dominant class, pixel counts, and percentage composition.",
+          resolution: "10 m",
+          licence: "CC BY 4.0",
+        },
+        gfd: {
+          title: "Global Flood Database (GFD)",
+          description:
+            "MODIS-derived historical flood polygons 2000–2018. 17 individual events + 8 frequency groups covering 473.488 km².",
+          resolution: "250 m satellite",
+          licence: "Research labels",
+        },
+        sar: {
+          title: "Sentinel-1 SAR labels",
+          description:
+            "Independent SAR flood labels for validation. Optional export via Google Earth Engine — see docs/SAR_FLOOD_LABELS.md.",
+          resolution: "10 m SAR",
+          licence: "Copernicus Sentinel",
+        },
+        era5: {
+          title: "ERA5 reanalysis rainfall",
+          description:
+            "Area-weighted daily rainfall 2015–2025 (9,497 rows). Used for model features and calibration, not as local gauge data.",
+          resolution: "~25 km",
+          licence: "Copernicus CDS",
+        },
+        openMeteo: {
+          title: "Open-Meteo forecast",
+          description: "Live 1–7 day precipitation forecast for Maubin. Weather-model output, not observed rainfall.",
+          resolution: "Forecast grid",
+          licence: "Open-Meteo API",
+        },
+      },
+    },
+    inventory: {
+      title: "Dataset inventory",
+      intro: "Key counts from the Maubin geospatial pipeline (backend/data/).",
+      stats: {
+        terrainCells: "Terrain cells (500 m grid)",
+        riverSegments: "OSM river segments",
+        canalSegments: "OSM canal segments",
+        era5Rows: "ERA5 daily rainfall rows",
+        gfdEvents: "GFD individual flood events",
+        gfdGroups: "GFD frequency groups",
+        gfdArea: "GFD flooded area (frequency composite)",
+      },
+      terrainFields: {
+        title: "Terrain cell fields (per 500 m cell)",
+        item1: "elevation_mean_m, elevation_min_m, elevation_max_m",
+        item2: "elevation_percentile — relative rank within township",
+        item3: "local_relief_m — elevation range within the cell",
+        item4: "distance_to_waterway_m — nearest mapped river/canal",
+        item5: "relief_angle_proxy — terrain slope indicator",
+        item6: "dem_sample_count — number of 30 m DEM pixels aggregated",
+      },
+      landCoverFields: {
+        title: "Land cover fields (per cell)",
+        item1: "dominant_class — ESA WorldCover class code and label",
+        item2: "class_percentages — percentage composition of all classes",
+        item3: "pixel_counts — raw 10 m pixel counts per class",
+        item4: "Not included in susceptibility score without historical calibration",
+      },
+    },
+    api: {
+      title: "API reference",
+      intro: "FastAPI backend at http://127.0.0.1:8000/api/v1 — interactive docs at /docs.",
+      groups: {
+        health: {
+          title: "Health & live infrastructure",
+          description: "Service health, MQTT bridge status, and WebSocket live readings.",
+          endpoints: "GET /health · GET /mqtt/status · WS /ws/live",
+        },
+        spatial: {
+          title: "Spatial assets",
+          description: "CRUD, bbox search, and bulk GeoJSON import for geo_assets.",
+          endpoints: "POST/GET /geo-assets · GET /geo-assets/within-bounds · POST /geo-assets/import",
+        },
+        screening: {
+          title: "Screening evidence",
+          description: "Map-ready terrain scores and land-cover summary.",
+          endpoints: "GET /flood-screening/terrain/index · GET /flood-screening/terrain · GET /flood-screening/land-cover/summary",
+        },
+        weather: {
+          title: "Weather & rainfall",
+          description: "Open-Meteo forecast and ERA5 historical rainfall with date range queries.",
+          endpoints: "GET /weather/rainfall-forecast · GET /weather/rainfall-history",
+        },
+        sensors: {
+          title: "Stations & observations",
+          description: "Register stations, ingest ESP32 readings, and manage hydro observations.",
+          endpoints: "POST/GET /stations · POST /readings · POST/GET /hydro-observations · GET /hydro-observations/latest",
+        },
+        alerts: {
+          title: "Threshold alerts",
+          description: "Deterministic MEDIUM/HIGH/CRITICAL alerts from configured station thresholds.",
+          endpoints: "GET /alerts · PATCH /alerts/{id}/acknowledge",
+        },
+        catalog: {
+          title: "Data-layer catalog",
+          description: "Provenance records with source, licence, quality, and limitations.",
+          endpoints: "POST/GET /data-layers · GET/PATCH /data-layers/{id}",
+        },
+        floodMl: {
+          title: "Flood ML",
+          description: "Historical susceptibility, event hindcast predictions, and model readiness.",
+          endpoints: "GET /flood-ml/* · GET /flood-ml/event-readiness",
+        },
+        forecast: {
+          title: "Flood forecast",
+          description: "Experimental forecast runs with immutable input snapshots.",
+          endpoints: "POST/GET /flood-forecast/*",
+        },
+        intelligence: {
+          title: "Flood intelligence",
+          description: "ML + SAR fusion, building exposure, and early-warning classification.",
+          endpoints: "GET /flood-intelligence/summary · GET /flood-intelligence/sar-validation · GET /flood-intelligence/exposure",
+        },
+      },
+    },
+    notAvailable: {
+      title: "Not yet available",
+      intro: "These capabilities are explicitly out of scope for the current MVP.",
+      items: {
+        depth: "Predicted flood depth and spatial extent as operational warnings",
+        arrival: "Arrival time or sequence of which areas flood first",
+        hydraulic: "Hydraulic model with levees, drainage capacity, tide, and soil",
+        sentinelRealtime: "Sentinel-1 near-real-time inundation pipeline",
+        productionAlerts: "Telegram, WhatsApp, or SMS production notification channels",
+        physicalSensors: "Physical ESP32 field deployment with calibrated hardware",
+      },
+    },
+    interpretation: {
+      title: "How to read the results",
+      intro: "Avoid misinterpreting screening scores or visualization as live flood warnings.",
+      items: {
+        veryHigh:
+          "A VERY HIGH cell means low, near-waterway, flat terrain worth inspecting first — not confirmed flooding.",
+        notPrediction: "Terrain screening and ML susceptibility are not flood probability or arrival-time predictions.",
+        visual3d: "3D relief and Cesium terrain are visualization context, not flood-water simulation.",
+        worldCover: "WorldCover is a 2021 snapshot; OSM waterways may miss local drains.",
+        operational:
+          "Operational decisions require field verification, official warnings, sensors, and historical-flood validation.",
+      },
+    },
+    run: {
+      title: "Run the project",
+      intro: "Start backend (port 8000) and frontend (port 3000) locally.",
+      dashboard: "Dashboard: http://127.0.0.1:3000",
+      swagger: "Swagger API docs: http://127.0.0.1:8000/docs",
+      health: "Health check: http://127.0.0.1:8000/health",
+      features: "This guide: http://127.0.0.1:3000/features",
+      weather: "Weather forecast: http://127.0.0.1:3000/weather",
+    },
+    footer:
+      "© OpenStreetMap contributors · Boundary © MIMU · Terrain Copernicus DEM GLO-30 · WorldCover © ESA · Forecast Open-Meteo · ERA5 Copernicus CDS · Hackathon MVP — not a production emergency system.",
+  },
+  weatherPage: {
+    nav: {
+      subtitle: "Weather forecast & rainfall data",
+      backToMap: "Back to map",
+    },
+    hero: {
+      eyebrow: "Maubin Township · Open-Meteo + ERA5",
+      title: "Rainfall forecast and historical baseline",
+      lead:
+        "Live 7-day weather-model precipitation forecast from Open-Meteo and area-weighted ERA5 reanalysis history used as model input for flood analysis.",
+    },
+    stats: {
+      next24h: "Next 24 hours (forecast)",
+      next7d: "Next 7 days (forecast total)",
+      peakProbability: "Peak daily rain probability",
+      era5WetDays: "ERA5 wet days (full record)",
+    },
+    forecast: {
+      title: "7-day rainfall forecast",
+      intro:
+        "Fetched from GET /weather/rainfall-forecast. Township-level weather-model output — not a local rain-gauge measurement.",
+      fetched: "Fetched",
+      cached: "Cached response",
+      dailyPrecip: "Daily precipitation (mm)",
+      hourlyLine: "Hourly precipitation (next 48h)",
+      disclaimer:
+        "Forecast rainfall is a weather-model scenario input. It does not confirm flooding and must not be used alone for evacuation decisions.",
+      unavailable:
+        "Forecast unavailable. Ensure the backend is running and Open-Meteo is reachable.",
+    },
+    history: {
+      title: "ERA5 historical rainfall",
+      intro:
+        "Area-weighted daily reanalysis from GET /weather/rainfall-history. Used for model calibration and antecedent accumulation features.",
+    },
+    table: {
+      date: "Date",
+      precipSum: "Daily total",
+      probability: "Max probability",
+    },
+    api: {
+      title: "API endpoints used",
+      intro: "This page loads data from the FastAPI weather routes on each refresh.",
+      note:
+        "Forecast uses Open-Meteo (live). History uses ERA5 stored in PostGIS (~25 km reanalysis grid). Both are inputs for the experimental flood forecast model.",
+    },
+    footer:
+      "Forecast © Open-Meteo · Historical © Copernicus ERA5 · Not a certified meteorological warning service.",
   },
 } as const;

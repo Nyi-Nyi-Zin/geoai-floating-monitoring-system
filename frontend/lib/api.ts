@@ -772,3 +772,47 @@ export async function getDashboardData(): Promise<DashboardData> {
     };
   }
 }
+
+export async function getWeatherPageData() {
+  const apiBase = API_BASE_URL;
+  try {
+    const [forecastResponse, historyResponse] = await Promise.all([
+      fetch(`${apiBase}/weather/rainfall-forecast?forecast_days=7`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(20_000),
+      }),
+      fetch(`${apiBase}/weather/rainfall-history?limit=366`, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(20_000),
+      }),
+    ]);
+
+    const forecast = forecastResponse.ok
+      ? ((await forecastResponse.json()) as RainfallForecast)
+      : null;
+    const history = historyResponse.ok
+      ? ((await historyResponse.json()) as RainfallHistory)
+      : null;
+
+    if (!forecast && !history) {
+      return {
+        forecast: null,
+        history: null,
+        apiBaseUrl: apiBase,
+        error: `Weather API unavailable (forecast HTTP ${forecastResponse.status}, history HTTP ${historyResponse.status}).`,
+      };
+    }
+
+    return { forecast, history, apiBaseUrl: apiBase, error: null };
+  } catch (error) {
+    return {
+      forecast: null,
+      history: null,
+      apiBaseUrl: apiBase,
+      error:
+        error instanceof Error
+          ? error.message
+          : "The weather API could not be reached.",
+    };
+  }
+}

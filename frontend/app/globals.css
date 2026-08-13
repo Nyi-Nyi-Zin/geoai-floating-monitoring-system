@@ -44,3 +44,8 @@ input:focus-visible,
   color: #062526;
   background: #caff5b;
 }
+
+.features-scroll-root {
+  overflow-y: auto;
+  height: 100vh;
+}

@@ -9,6 +9,7 @@ import {
   useTransition,
 } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type {
   DashboardData,
@@ -45,6 +46,9 @@ const LAND_COVER_LEGEND = [
   { color: "#0064c8", label: "Water" },
   { color: "#0096a0", label: "Wetland" },
 ] as const;
+
+const INITIAL_RETRY_DELAY_MS = 3_000;
+const MAX_RETRY_DELAY_MS = 30_000;
 
 function asNumber(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
@@ -174,6 +178,8 @@ export default function FloodMonitoringView({
 
   useEffect(() => {
     const controller = new AbortController();
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let retryDelay = INITIAL_RETRY_DELAY_MS;
     const bounds = "min_lon=95.35&min_lat=16.45&max_lon=95.95&max_lat=16.98";
 
     const getTerrainPage = async (page: number) => {
@@ -188,6 +194,15 @@ export default function FloodMonitoringView({
         features: GeoAsset[];
         meta: { pages: number };
       };
+    };
+
+    const scheduleRetry = () => {
+      if (controller.signal.aborted) return;
+      retryTimer = setTimeout(() => {
+        retryTimer = null;
+        void loadSpatialScreening();
+      }, retryDelay);
+      retryDelay = Math.min(retryDelay * 1.5, MAX_RETRY_DELAY_MS);
     };
 
     const loadSpatialScreening = async () => {
@@ -218,9 +233,10 @@ export default function FloodMonitoringView({
           ...remainingPages.flatMap((page) => page.features),
         ]);
         setTerrainScreening(screening);
+        retryDelay = INITIAL_RETRY_DELAY_MS;
       } catch {
         if (!controller.signal.aborted) {
-          /* keep SSR fallback data */
+          scheduleRetry();
         }
       } finally {
         if (!controller.signal.aborted) setTerrainLoading(false);
@@ -228,16 +244,43 @@ export default function FloodMonitoringView({
     };
 
     void loadSpatialScreening();
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      if (retryTimer) clearTimeout(retryTimer);
+    };
   }, [spatialApiUrl]);
 
   useEffect(() => {
     if (initialFloodExtents.length > 0) return;
     const controller = new AbortController();
-    void fetchFloodExtents(spatialApiUrl, controller.signal)
-      .then(setFloodExtents)
-      .catch(() => undefined);
-    return () => controller.abort();
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let retryDelay = INITIAL_RETRY_DELAY_MS;
+
+    const scheduleRetry = () => {
+      if (controller.signal.aborted) return;
+      retryTimer = setTimeout(() => {
+        retryTimer = null;
+        void loadFloodExtents();
+      }, retryDelay);
+      retryDelay = Math.min(retryDelay * 1.5, MAX_RETRY_DELAY_MS);
+    };
+
+    const loadFloodExtents = async () => {
+      try {
+        setFloodExtents(await fetchFloodExtents(spatialApiUrl, controller.signal));
+        retryDelay = INITIAL_RETRY_DELAY_MS;
+      } catch {
+        if (!controller.signal.aborted) {
+          scheduleRetry();
+        }
+      }
+    };
+
+    void loadFloodExtents();
+    return () => {
+      controller.abort();
+      if (retryTimer) clearTimeout(retryTimer);
+    };
   }, [initialFloodExtents.length, spatialApiUrl]);
 
   const terrainScreeningById = useMemo(() => {
@@ -450,6 +493,28 @@ export default function FloodMonitoringView({
   const isBackendOnline =
     !error && health?.database.status === "healthy";
 
+  useEffect(() => {
+    if (isBackendOnline) return;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+    let retryDelay = INITIAL_RETRY_DELAY_MS;
+    let cancelled = false;
+
+    const scheduleRefresh = () => {
+      retryTimer = setTimeout(() => {
+        if (cancelled) return;
+        router.refresh();
+        retryDelay = Math.min(retryDelay * 1.5, MAX_RETRY_DELAY_MS);
+        scheduleRefresh();
+      }, retryDelay);
+    };
+
+    scheduleRefresh();
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+    };
+  }, [isBackendOnline, router]);
+
   return (
     <div className={styles.shell}>
       <div className={styles.mapStage}>
@@ -567,6 +632,12 @@ export default function FloodMonitoringView({
               {t("header.spatialDbOnline")}
             </div>
           )}
+          <Link href="/weather" className={styles.featuresLink}>
+            {t("monitoring.weatherGuide")}
+          </Link>
+          <Link href="/features" className={styles.featuresLink}>
+            {t("monitoring.featuresGuide")}
+          </Link>
           <LanguageSwitcher />
           <button
             type="button"
@@ -644,9 +715,9 @@ export default function FloodMonitoringView({
             <span>1.0</span>
           </div>
           <p>{t("monitoring.floodRiskHint")}</p>
-          <a className={styles.learnMore} href="#details">
+          <Link className={styles.learnMore} href="/features">
             {t("monitoring.learnMore")}
-          </a>
+          </Link>
             </>
           )}
           {visibility.buildings ? (
