@@ -53,3 +53,6 @@
 - [x] Create durable observation and photo-reference storage with authenticated submission and secure server-side uploads.
 - [x] Add mobile-friendly field-observation capture and analyst review views that remain clearly separate from public flood alerts.
 - [ ] Test the evidence workflow, publish the monitoring-only release, synchronize GitHub, and report validation-readiness limitations.
+- [x] Add automated success-path coverage for protected observation persistence, managed photo-reference upload, and administrator review updates without fabricating field evidence in production.
+- [x] Add a higher-level protected-API regression that verifies successful submission and administrator review through the router while mocked persistence prevents fabricated production evidence.
+- [ ] Push the final field-evidence release, tests, and tracker state to the DeltaWatch GitHub branch.
