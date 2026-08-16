@@ -13,4 +13,4 @@
 - [x] Add an idempotent nightly /api/scheduled rainfall handler that upserts current-month Open-Meteo data into rainfall_history.
 - [x] Add schema migrations, seed data, service tests, API tests, and UI tests for core monitoring flows.
 - [x] Verify responsive visual rendering, create a final checkpoint, and prepare the site for user-initiated publishing.
-- [ ] After publication, create and verify the project-level nightly Heartbeat job.
+- [x] After publication, create and verify the project-level nightly Heartbeat job.
