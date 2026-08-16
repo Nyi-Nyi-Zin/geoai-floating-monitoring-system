@@ -56,3 +56,7 @@
 - [x] Add automated success-path coverage for protected observation persistence, managed photo-reference upload, and administrator review updates without fabricating field evidence in production.
 - [x] Add a higher-level protected-API regression that verifies successful submission and administrator review through the router while mocked persistence prevents fabricated production evidence.
 - [x] Push the final field-evidence release, tests, and tracker state to the DeltaWatch GitHub branch.
+- [x] Audit verified field observations and timestamped prospective snapshot coverage without creating synthetic evidence.
+- [x] Define and document field-to-grid matching, lead-time windows, exclusions, calibration metrics, and non-promotion thresholds.
+- [x] Generate an evidence-backed prospective calibration report or a zero-evidence baseline that explicitly withholds unsupported accuracy metrics.
+- [ ] Validate, publish, synchronize GitHub, and report prospective-calibration readiness limitations.

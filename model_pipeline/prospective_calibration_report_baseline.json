@@ -1,0 +1,18 @@
+{
+  "generatedAtUtc": "2026-08-16T19:36:43.797Z",
+  "evidence": {
+    "submitted": 0,
+    "verified": 0,
+    "rejected": 0,
+    "verifiedCoverage": null
+  },
+  "prospectiveSnapshots": {
+    "snapshotCount": 8,
+    "issueCount": 1,
+    "earliestIssueTime": "2026-08-16T18:00:00.000Z",
+    "latestIssueTime": "2026-08-16T18:00:00.000Z",
+    "earliestTargetDate": "2026-08-16",
+    "latestTargetDate": "2026-08-23"
+  },
+  "metricsStatus": "withheld_no_verified_matched_outcomes_and_no_prospective_scores"
+}
