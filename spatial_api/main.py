@@ -9,7 +9,7 @@ app = FastAPI(title="DeltaWatch Spatial API", version="1.0.0")
 
 SEED_BASE_URL = os.getenv("SPATIAL_SEED_BASE_URL", "http://127.0.0.1:3000")
 SPATIAL_SEED_PATH = "/manus-storage/maubin_spatial_seed_08a16481.json"
-HINDCAST_SEED_PATH = "/manus-storage/maubin_hindcast_seed_7af600c5.json"
+HINDCAST_SEED_PATH = "/manus-storage/maubin_hindcast_seed_v7_e80e6338.json"
 RAINFALL_SEED_PATH = "/manus-storage/maubin_rainfall_seed_b7223d86.json"
 
 

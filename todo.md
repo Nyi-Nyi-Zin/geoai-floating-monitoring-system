@@ -16,3 +16,9 @@
 - [x] After publication, create and verify the project-level nightly Heartbeat job.
 - [x] Push the latest verified DeltaWatch project state to the configured GitHub repository.
 - [x] Inspect and report current deployment, database, spatial-service, and nightly-refresh job status.
+- [x] Verify and report the v6 flood-hindcast model’s current performance, proper use, and limitations.
+- [x] Assess authoritative Maubin-relevant sources for river levels, tidal conditions, upstream inflow proxies, rainfall lags, drainage and levee features, and additional validated flood events.
+- [x] Acquire and spatially-temporally align eligible new predictors with the historical flood-event labels.
+- [x] Retrain candidate flood models with leakage-safe chronological validation and compare calibration, precision, recall, F1, PR-AUC, and ROC-AUC.
+- [x] Update durable model seeds, metadata, methodology, dashboard metrics, tests, and source documentation for the selected candidate.
+- [ ] Verify the updated production dashboard, publish the model upgrade, synchronize GitHub, and report the final comparison.

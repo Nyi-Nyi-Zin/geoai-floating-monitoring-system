@@ -11,3 +11,4 @@ Verified locally on 2026-08-16:
 - The visible basemap selector switches from Esri satellite imagery to OpenTopoMap terrain tiles; the map attribution changes accordingly.
 - The Labels switch renders a permanent `Maubin Township` map label. The mobile breakpoint keeps the rainfall and hindcast panels visible without horizontal overflow.
 - Production validation on 2026-08-16 confirmed that `https://deltawatch-jayyutyh.manus.space` completed its cold start and loaded the spatial terrain layer, 7-day Open-Meteo forecast, ERA5 sparkline, 17-event selector, and `terrain_screening` status label.
+- V7 local verification confirmed that the spatial API serves `maubin-flood-event-hgb-v7`, the dashboard defaults to a walk-forward event with available predictions, the panel identifies the 2018 holdout, and the always-visible limitation explicitly states that tide and surge remain deferred pending a validated Maubin-relevant record.

@@ -9,7 +9,7 @@ type LayerKey = "floodRisk" | "gridCells" | "historicalFlood" | "rivers" | "cana
 type SpatialFeature = Feature<Geometry, Record<string, unknown>>;
 type SpatialCollection = FeatureCollection<Geometry, Record<string, unknown>>;
 type FloodEvent = { id: string; name: string; start_date: string; end_date: string; area_km2: number; geometry: Geometry };
-type Hindcast = { event: FloodEvent; model: { version: string; metrics?: { precision?: number; recall?: number; f1?: number } }; predictions: Array<{ cell_id: string; probability: number; predicted_label: boolean }> };
+type Hindcast = { event: FloodEvent; model: { version: string; threshold?: number; metrics?: { precision?: number; recall?: number; f1?: number; roc_auc?: number; pr_auc?: number }; predictors?: { tide?: string } }; predictions: Array<{ cell_id: string; probability: number; predicted_label: boolean }> };
 
 const satelliteTiles = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const terrainTiles = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
@@ -69,7 +69,8 @@ export default function Home() {
           fetch("/api/spatial/rainfall-history").then(response => response.json()),
         ]);
         setSpatialOnline(Boolean(health.ok)); setSpatial(waterways); setTerrain(terrainData); setEvents(eventData.events ?? []); setRainHistory(history.history ?? []);
-        if (eventData.events?.[0]) setSelectedEvent(String(eventData.events[0].id));
+        const initialEvent = eventData.events?.find((event: FloodEvent) => new Date(event.start_date).getFullYear() >= 2004) ?? eventData.events?.[0];
+        if (initialEvent) setSelectedEvent(String(initialEvent.id));
       } finally { setLoading(false); }
     };
     void load();
@@ -86,14 +87,14 @@ export default function Home() {
   const canalLayer = useMemo<SpatialCollection | null>(() => spatial ? { type: "FeatureCollection", features: spatial.features.filter((feature: SpatialFeature) => feature.properties.asset_type === "canal_segment") } : null, [spatial]);
   const riskStyle = (feature?: SpatialFeature) => {
     const properties = feature?.properties ?? {}; const id = String(properties.id ?? feature?.id ?? ""); const prediction = predictionByCell.get(id);
-    if (prediction) return { color: "#0f172a", weight: 0.15, fillColor: prediction.probability > 0.53 ? "#f43f5e" : "#60a5fa", fillOpacity: 0.18 + prediction.probability * 0.58 };
+    if (prediction) return { color: "#0f172a", weight: 0.15, fillColor: prediction.probability >= (hindcast?.model.threshold ?? 0.53) ? "#f43f5e" : "#60a5fa", fillOpacity: 0.18 + prediction.probability * 0.58 };
     const band = String(properties.screening_band ?? "LOWER"); return { color: "#0f172a", weight: layers.gridCells ? 0.3 : 0, fillColor: bandColor[band] ?? bandColor.LOWER, fillOpacity: layers.floodRisk ? 0.38 : 0 };
   };
   const overlayTerrain = (layers.floodRisk || layers.gridCells) ? terrain : null;
   const historicalFeatures: SpatialCollection | null = layers.historicalFlood ? { type: "FeatureCollection", features: events.map(event => ({ type: "Feature", properties: { id: event.id, name: event.name }, geometry: event.geometry })) } : null;
   const forecast = weather.data?.forecast ?? [];
-  const precision = hindcast?.model.metrics?.precision ?? 0.1547;
-  const recall = hindcast?.model.metrics?.recall ?? 0.4208;
+  const precision = hindcast?.model.metrics?.precision ?? 0.1574;
+  const recall = hindcast?.model.metrics?.recall ?? 0.2346;
 
   return <div className="dashboard-shell">
     <main className="map-stage">
@@ -117,11 +118,11 @@ export default function Home() {
 
       <section className="side-panel rainfall-panel"><div className="panel-heading"><CloudRain size={16} /><span>Rainfall watch</span></div><div className="rain-title"><strong>{forecast.reduce((sum, point) => sum + point.precipitationMm, 0).toFixed(1)} mm</strong><span>next 7 days · Open-Meteo</span></div>{weather.isLoading ? <div className="loading-inline"><LoaderCircle size={16} />Loading forecast</div> : <RainBars points={forecast} />}<div className="history-header"><span>30-day ERA5 rainfall history</span><small>mm/day</small></div>{rainHistory.length ? <RainSparkline points={rainHistory} /> : <p className="empty-note">Historical rainfall will populate after the first nightly ERA5 refresh.</p>}</section>
 
-      <section className="side-panel hindcast-panel"><div className="panel-heading"><BarChart3 size={16} /><span>Experimental event hindcast</span></div><label className="select-label">Historical GFD v3 event<select value={selectedEvent} onChange={event => setSelectedEvent(event.target.value)}>{events.map(event => <option key={event.id} value={event.id}>{event.start_date} · {event.name}</option>)}</select></label><div className="model-card"><div><span>v6 logistic model</span><strong>{hindcast?.event.area_km2?.toFixed(1) ?? "—"} km² observed extent</strong></div><div className="metric-pair"><span>Precision <b>{(precision * 100).toFixed(1)}%</b></span><span>Recall <b>{(recall * 100).toFixed(1)}%</b></span></div></div><div className="disclaimer"><ShieldAlert size={15} /><p>Experimental hindcast only. Precision and recall are evaluated on historical GFD v3 event cells; do not use this output as a public warning or life-safety decision.</p></div></section>
+      <section className="side-panel hindcast-panel"><div className="panel-heading"><BarChart3 size={16} /><span>Experimental event hindcast</span></div><label className="select-label">Historical GFD event<select value={selectedEvent} onChange={event => setSelectedEvent(event.target.value)}>{events.map(event => <option key={event.id} value={event.id}>{event.start_date} · {event.name}</option>)}</select></label><div className="model-card"><div><span>{hindcast?.model.version ? "HGB v7 · 2018 holdout" : "v7 hydrologic model"}</span><strong>{hindcast?.event.area_km2?.toFixed(1) ?? "—"} km² observed extent</strong></div><div className="metric-pair"><span>Precision <b>{(precision * 100).toFixed(1)}%</b></span><span>Recall <b>{(recall * 100).toFixed(1)}%</b></span></div></div><div className="disclaimer"><ShieldAlert size={15} /><p>Experimental hindcast only. v7 combines terrain, ERA5 rainfall lags, GloFAS discharge proxies, and mapped drainage or levee distances. The held-out 2018 metrics are shown; tide and surge remain deferred pending a validated Maubin-relevant record. Never use this output as a public warning or life-safety decision.</p></div></section>
 
       <section className="status-bar"><div><Database size={15} /><span>Spatial DB</span><strong>{spatialOnline ? "connected" : "checking"}</strong></div><div><ShieldAlert size={15} /><span>Open alerts</span><strong>{status.data?.openAlerts ?? 0}</strong></div><div><Eye size={15} /><span>Risk basis</span><strong>{status.data?.riskBasis ?? "terrain_screening"}</strong></div></section>
       {loading && <div className="map-loader"><LoaderCircle size={24} /><span>Loading 5,549 terrain screening cells</span></div>}
     </main>
-    {aboutOpen && <div className="modal-backdrop" role="presentation"><section className="methodology-modal" role="dialog" aria-modal="true" aria-labelledby="methodology-title"><button className="close-button" onClick={() => setAboutOpen(false)} aria-label="Close methodology"><X size={18} /></button><span className="eyebrow">Methods & limits</span><h1 id="methodology-title">Maubin flood intelligence is a screening and hindcast system.</h1><p>Terrain screening combines relative elevation, mapped waterways, and terrain flatness. The event panel shows an experimental v6 logistic hindcast model calibrated against historical flood observations, not a real-time hydrologic forecast.</p><div className="source-grid"><div><strong>Copernicus DEM</strong><span>Relative terrain and low-elevation screening</span></div><div><strong>ESA WorldCover</strong><span>Land-cover context for terrain cells</span></div><div><strong>GFD v3</strong><span>Pixel-level historical flood-event polygons</span></div><div><strong>ERA5</strong><span>Historical rainfall context and nightly upserts</span></div></div><p className="limit-note">Limitations: river stage, tide, upstream inflow, drainage capacity, levees, and verified field observations are not represented. Treat all model outputs as experimental analytical context.</p></section></div>}
+    {aboutOpen && <div className="modal-backdrop" role="presentation"><section className="methodology-modal" role="dialog" aria-modal="true" aria-labelledby="methodology-title"><button className="close-button" onClick={() => setAboutOpen(false)} aria-label="Close methodology"><X size={18} /></button><span className="eyebrow">Methods & limits</span><h1 id="methodology-title">Maubin flood intelligence is a screening and hindcast system.</h1><p>Terrain screening combines relative elevation, mapped waterways, and terrain flatness. The event panel shows an experimental v7 hydrologic hindcast, evaluated against native GFD flood pixels after permanent water is excluded. It is not a real-time hydrologic forecast.</p><div className="source-grid"><div><strong>Copernicus DEM</strong><span>Relative terrain and low-elevation screening</span></div><div><strong>ESA WorldCover</strong><span>Land-cover context for terrain cells</span></div><div><strong>GFD event maps</strong><span>Native flood and permanent-water pixels for historical labels</span></div><div><strong>ERA5</strong><span>Historical rainfall lags and nightly rainfall upserts</span></div><div><strong>GloFAS</strong><span>Modelled river-discharge proxy for upstream inflow</span></div><div><strong>OpenStreetMap</strong><span>Mapped drainage, canal, levee, and embankment distance</span></div></div><p className="limit-note">Limitations: local river-stage observations, a Maubin-relevant tide and surge record spanning the full validation interval, drainage capacity, levee condition, and verified field observations are not represented. Treat all outputs as experimental analytical context.</p></section></div>}
   </div>;
 }
