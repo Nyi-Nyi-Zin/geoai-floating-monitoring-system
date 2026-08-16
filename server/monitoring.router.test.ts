@@ -16,6 +16,11 @@ describe("monitoring.status", () => {
       spatialDb: "online",
       modelVersion: "maubin-flood-event-logistic-v6",
       modelStatus: "experimental",
+      alertReadiness: {
+        mode: "disabled",
+        label: "Monitoring only",
+        delivery: "dashboard_only",
+      },
     });
   });
 });

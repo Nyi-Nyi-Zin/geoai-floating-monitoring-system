@@ -127,4 +127,10 @@ export const monitoringStatus = {
   riskBasis: "terrain_screening",
   modelVersion: "maubin-flood-event-logistic-v6",
   modelStatus: "experimental",
+  alertReadiness: {
+    mode: "disabled",
+    label: "Monitoring only",
+    delivery: "dashboard_only",
+    reason: "No validated local river-stage or calibrated Maubin coastal-water record is available.",
+  },
 } as const;
