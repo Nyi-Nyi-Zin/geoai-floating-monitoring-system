@@ -49,3 +49,7 @@
 - [x] Create and verify the project-level six-hour refresh schedule, expose a clearly labelled prospective monitoring status, and preserve audit-ready validation records.
 - [x] Add an integration regression test that exercises stored-snapshot prospective feature retrieval and confirms all per-cell features are retrievable without probability, predicted-label, or alert fields.
 - [x] Push the latest prospective-monitoring release to GitHub and verify the public production dashboard exposes its monitoring-only prospective status.
+- [x] Define field-observation evidence standards, required provenance fields, permitted review states, and protected access controls for prospective validation.
+- [x] Create durable observation and photo-reference storage with authenticated submission and secure server-side uploads.
+- [x] Add mobile-friendly field-observation capture and analyst review views that remain clearly separate from public flood alerts.
+- [ ] Test the evidence workflow, publish the monitoring-only release, synchronize GitHub, and report validation-readiness limitations.

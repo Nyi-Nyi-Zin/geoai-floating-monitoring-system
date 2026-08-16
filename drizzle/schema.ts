@@ -1,4 +1,4 @@
-import { decimal, int, json, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
+import { decimal, index, int, json, mysqlEnum, mysqlTable, text, timestamp, uniqueIndex, varchar } from "drizzle-orm/mysql-core";
 
 export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
@@ -59,6 +59,26 @@ export const prospectiveForecastSnapshots = mysqlTable("prospective_forecast_sna
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 }, table => [uniqueIndex("prospective_forecast_issue_target").on(table.sourceKey, table.issueKey, table.targetDate)]);
+
+export const fieldObservations = mysqlTable("field_observations", {
+  id: int("id").autoincrement().primaryKey(),
+  reporterUserId: int("reporter_user_id").notNull(),
+  observedAt: timestamp("observed_at").notNull(),
+  latitude: decimal("latitude", { precision: 9, scale: 6 }).notNull(),
+  longitude: decimal("longitude", { precision: 9, scale: 6 }).notNull(),
+  locationAccuracyM: decimal("location_accuracy_m", { precision: 9, scale: 1 }),
+  impactClass: mysqlEnum("impact_class", ["flooded", "water_on_road", "access_disrupted", "no_flood_observed"]).notNull(),
+  waterDepthCm: decimal("water_depth_cm", { precision: 8, scale: 1 }),
+  notes: text("notes"),
+  photoKey: varchar("photo_key", { length: 255 }),
+  photoContentType: varchar("photo_content_type", { length: 120 }),
+  reviewStatus: mysqlEnum("review_status", ["submitted", "verified", "rejected"]).default("submitted").notNull(),
+  reviewNotes: text("review_notes"),
+  reviewerUserId: int("reviewer_user_id"),
+  reviewedAt: timestamp("reviewed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+}, table => [index("field_observations_review_observed").on(table.reviewStatus, table.observedAt), index("field_observations_reporter").on(table.reporterUserId)]);
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;

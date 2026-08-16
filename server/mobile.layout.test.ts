@@ -17,6 +17,7 @@ describe("mobile dashboard layout contract", () => {
     expect(css).toContain(".controls-panel.mobile-controls-open");
     expect(css).toContain("max-height: calc(100svh - 368px)");
     expect(css).toContain("grid-template-columns: repeat(2, minmax(0, 1fr))");
-    expect(css).toContain(".methodology-modal { max-height: calc(100svh - 24px)");
+    expect(css).toContain(".methodology-modal, .observation-modal { max-height: calc(100svh - 24px)");
+    expect(css).toContain(".evidence-button");
   });
 });
