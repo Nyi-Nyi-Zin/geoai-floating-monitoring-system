@@ -14,5 +14,5 @@
 - [x] Add schema migrations, seed data, service tests, API tests, and UI tests for core monitoring flows.
 - [x] Verify responsive visual rendering, create a final checkpoint, and prepare the site for user-initiated publishing.
 - [x] After publication, create and verify the project-level nightly Heartbeat job.
-- [ ] Push the latest verified DeltaWatch project state to the configured GitHub repository.
-- [ ] Inspect and report current deployment, database, spatial-service, and nightly-refresh job status.
+- [x] Push the latest verified DeltaWatch project state to the configured GitHub repository.
+- [x] Inspect and report current deployment, database, spatial-service, and nightly-refresh job status.

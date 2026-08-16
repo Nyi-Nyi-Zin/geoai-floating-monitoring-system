@@ -10,3 +10,4 @@ Verified locally on 2026-08-16:
 - The methodology modal opens and names Copernicus DEM, ESA WorldCover, GFD v3, and ERA5.
 - The visible basemap selector switches from Esri satellite imagery to OpenTopoMap terrain tiles; the map attribution changes accordingly.
 - The Labels switch renders a permanent `Maubin Township` map label. The mobile breakpoint keeps the rainfall and hindcast panels visible without horizontal overflow.
+- Production validation on 2026-08-16 confirmed that `https://deltawatch-jayyutyh.manus.space` completed its cold start and loaded the spatial terrain layer, 7-day Open-Meteo forecast, ERA5 sparkline, 17-event selector, and `terrain_screening` status label.
