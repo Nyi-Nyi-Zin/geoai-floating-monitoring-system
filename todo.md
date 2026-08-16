@@ -40,10 +40,12 @@
 - [x] Verify mobile and desktop rendering, publish the responsive release, synchronize GitHub, and report the result.
 - [x] Audit eligible current and forecast rainfall, upstream-flow, river-stage, and tide/surge data for a prospective Maubin prediction pipeline, including latency and provenance.
 - [x] Compare safe automated prediction operating modes and establish monitoring-only activation gates, prospective validation requirements, and data-quality controls.
-- [ ] Build only the eligible monitoring-only ingestion and future-time prediction components; retain v7 historical hindcast when inputs or validation are insufficient.
-- [ ] Run timestamped prospective validation, verify automation behavior, publish any safe monitoring outputs, synchronize GitHub, and report remaining readiness limits.
+- [x] Build only the eligible monitoring-only ingestion and future-time prediction components; retain v7 historical hindcast when inputs or validation are insufficient.
+- [ ] Initialize timestamped prospective validation, verify technical automation behavior, publish safe monitoring-only outputs, synchronize GitHub, and report remaining outcome-data readiness limits.
 - [x] Create a six-hour forecast snapshot store with immutable issue timestamps, source coverage, quality flags, and monitoring-only output metadata.
 - [x] Implement idempotent forecast rainfall, soil-moisture, and GloFAS-discharge ingestion that does not emit alerts.
-- [ ] Implement and durably retain per-cell future-time v7 feature projections by combining forecast inputs with the existing static terrain, land-cover, drainage, and levee context for each target date.
-- [ ] Add end-to-end regression coverage that verifies durable per-cell prospective features are retrievable for a target date while probability, alert, and predicted-label fields remain absent.
-- [ ] Create and verify the project-level six-hour refresh schedule, expose a clearly labelled prospective monitoring status, and preserve audit-ready validation records.
+- [x] Implement and durably retain per-cell future-time v7 feature projections by combining forecast inputs with the existing static terrain, land-cover, drainage, and levee context for each target date.
+- [x] Add end-to-end regression coverage that verifies durable per-cell prospective features are retrievable for a target date while probability, alert, and predicted-label fields remain absent.
+- [x] Create and verify the project-level six-hour refresh schedule, expose a clearly labelled prospective monitoring status, and preserve audit-ready validation records.
+- [x] Add an integration regression test that exercises stored-snapshot prospective feature retrieval and confirms all per-cell features are retrievable without probability, predicted-label, or alert fields.
+- [ ] Push the latest prospective-monitoring release to GitHub and verify the public production dashboard exposes its monitoring-only prospective status.
