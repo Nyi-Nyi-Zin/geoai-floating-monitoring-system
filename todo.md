@@ -34,4 +34,4 @@
 - [x] Research and acquire only eligible Maubin-relevant river-stage, tide/surge, upstream-flow, rainfall, exposure, or validated flood-label evidence with clear provenance and temporal coverage; the CEMS GloFAS wetness candidate is documented but deferred pending separate EWDS licence authorization.
 - [x] Engineer leakage-safe candidate features and retrain comparative models against the v7 baseline on a common chronological evaluation.
 - [x] Promote only a demonstrably improved candidate; otherwise retain v7 and document the negative experiment evidence and remaining blockers.
-- [ ] Verify any qualified release, synchronize GitHub, and report the model-improvement findings and operational limitations.
+- [x] Verify any qualified release, synchronize GitHub, and report the model-improvement findings and operational limitations.
