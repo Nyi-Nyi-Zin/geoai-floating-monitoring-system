@@ -27,6 +27,6 @@
 - [x] Acquire and quality-control only eligible river, tide/surge, and additional flood-validation data; preserve documented gaps rather than synthesizing values.
 - [x] Integrate accepted new predictors into a leakage-safe chronological model experiment and compare candidates against v7 on a common holdout.
 - [x] Define and implement a clearly labelled non-life-safety monitoring-alert workflow only if its input evidence and evaluation support it; the coastal proxy is currently unsupported, so the implemented workflow remains explicitly disabled and dashboard-only.
-- [ ] Verify, publish, synchronize GitHub, and report any validated next-stage model or monitoring improvements.
+- [x] Verify, publish, synchronize GitHub, and report any validated next-stage model or monitoring improvements.
 - [x] Obtain a user-authorized C3S API credential or Maubin/Nyaungdon local-gauge file that covers the 2002–2018 model event period before adding a tide/surge or local-stage predictor.
 - [x] Document a concrete disabled non-life-safety alert workflow proposal, including activation gates, labels, thresholds, delivery channel, and verification requirements.
