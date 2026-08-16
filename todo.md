@@ -30,3 +30,8 @@
 - [x] Verify, publish, synchronize GitHub, and report any validated next-stage model or monitoring improvements.
 - [x] Obtain a user-authorized C3S API credential or Maubin/Nyaungdon local-gauge file that covers the 2002–2018 model event period before adding a tide/surge or local-stage predictor.
 - [x] Document a concrete disabled non-life-safety alert workflow proposal, including activation gates, labels, thresholds, delivery channel, and verification requirements.
+- [x] Audit the v7 training pipeline, event-split performance, feature coverage, calibration, and documented data gaps before selecting new model-improvement work.
+- [x] Research and acquire only eligible Maubin-relevant river-stage, tide/surge, upstream-flow, rainfall, exposure, or validated flood-label evidence with clear provenance and temporal coverage; the CEMS GloFAS wetness candidate is documented but deferred pending separate EWDS licence authorization.
+- [x] Engineer leakage-safe candidate features and retrain comparative models against the v7 baseline on a common chronological evaluation.
+- [x] Promote only a demonstrably improved candidate; otherwise retain v7 and document the negative experiment evidence and remaining blockers.
+- [ ] Verify any qualified release, synchronize GitHub, and report the model-improvement findings and operational limitations.
