@@ -23,3 +23,10 @@
 - [x] Update durable model seeds, metadata, methodology, dashboard metrics, tests, and source documentation for the selected candidate.
 - [x] Verify the updated production dashboard, publish the model upgrade, synchronize GitHub, and report the final comparison.
 - [x] Deliver the final v6-versus-v7 comparison, production URL, GitHub synchronization reference, and remaining tide-data limitation to the user.
+- [x] Assess Maubin-local and regional river-stage, tide/surge, upstream-flow, and independently validated flood-label data coverage, access terms, and temporal completeness.
+- [x] Acquire and quality-control only eligible river, tide/surge, and additional flood-validation data; preserve documented gaps rather than synthesizing values.
+- [x] Integrate accepted new predictors into a leakage-safe chronological model experiment and compare candidates against v7 on a common holdout.
+- [ ] Define and implement a clearly labelled non-life-safety monitoring-alert workflow only if its input evidence and evaluation support it; the coastal proxy is currently unsupported, so no alert is implemented.
+- [ ] Verify, publish, synchronize GitHub, and report any validated next-stage model or monitoring improvements.
+- [x] Obtain a user-authorized C3S API credential or Maubin/Nyaungdon local-gauge file that covers the 2002–2018 model event period before adding a tide/surge or local-stage predictor.
+- [x] Document a concrete disabled non-life-safety alert workflow proposal, including activation gates, labels, thresholds, delivery channel, and verification requirements.

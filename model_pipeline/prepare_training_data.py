@@ -60,6 +60,8 @@ def main() -> None:
     rainfall = load_json(Path("/home/ubuntu/maubin_era5_2002_2018.json"))
     discharge = load_json(Path("/home/ubuntu/maubin_glofas_2002_2018.json"))
     infrastructure = load_json(Path("/home/ubuntu/maubin_osm_drainage_embankment.json"))
+    coastal_payload = load_json(OUTPUT / "gtsm_event_window_features.json")
+    coastal_by_event = {str(item["event_id"]): item for item in coastal_payload["events"]}
 
     terrain_cells: list[dict] = []
     for feature in spatial.get("features", []):
@@ -134,9 +136,11 @@ def main() -> None:
         "osm_drainage_distance_m", "osm_levee_distance_m",
         "rainfall_lag_1d_mm", "rainfall_lag_3d_mm", "rainfall_lag_7d_mm", "rainfall_lag_14d_mm", "rainfall_lag_30d_mm",
         "discharge_lag_1d_m3s", "discharge_lag_3d_m3s", "discharge_lag_7d_m3s", "discharge_lag_14d_m3s", "discharge_lag_30d_m3s",
+        "coastal_total_water_lag_1d_m", "coastal_total_water_lag_3d_max_m",
+        "coastal_surge_lag_1d_m", "coastal_surge_lag_3d_max_m",
     ]
     row_count = 0
-    with (OUTPUT / "maubin_training_events_v7.csv").open("w", newline="", encoding="utf-8") as handle:
+    with (OUTPUT / "maubin_training_events_v8.csv").open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
         writer.writeheader()
         for event in events:
@@ -153,6 +157,13 @@ def main() -> None:
                 "discharge_lag_14d_m3s": lag_total(discharge_series, event["start_date"], 14),
                 "discharge_lag_30d_m3s": lag_total(discharge_series, event["start_date"], 30),
             }
+            coastal = coastal_by_event[str(event["id"])]
+            dynamic.update({
+                "coastal_total_water_lag_1d_m": coastal["coastal_total_water_lag_1d_m"],
+                "coastal_total_water_lag_3d_max_m": coastal["coastal_total_water_lag_3d_max_m"],
+                "coastal_surge_lag_1d_m": coastal["coastal_surge_lag_1d_m"],
+                "coastal_surge_lag_3d_max_m": coastal["coastal_surge_lag_3d_max_m"],
+            })
             for cell in static_rows:
                 writer.writerow({
                     "event_id": event["id"],
@@ -172,12 +183,15 @@ def main() -> None:
         "rainfall_source": "Open-Meteo archive API (ERA5-based daily precipitation)",
         "discharge_source": "Open-Meteo flood API backed by GloFAS historical river discharge",
         "infrastructure_source": "OpenStreetMap Overpass query for drain, ditch, canal, levee and embankment tags",
-        "tide_feature_status": "deferred: FES2022 access requires registration; no local-gauge series has been verified",
+        "coastal_proxy_source": coastal_payload["source"],
+        "coastal_proxy_node": coastal_payload["nearest_node"],
+        "coastal_proxy_caveat": coastal_payload["node_type"],
+        "tide_feature_status": coastal_payload["tide_feature_status"],
         "leakage_control": "All dynamic rolling windows end one day before each GFD event start date.",
         "drainage_feature_count": len(drainage_geometries),
         "levee_feature_count": len(levee_geometries),
     }
-    (OUTPUT / "data_manifest_v7.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    (OUTPUT / "data_manifest_v8.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     print(json.dumps(manifest, indent=2))
 
 
