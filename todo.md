@@ -21,4 +21,5 @@
 - [x] Acquire and spatially-temporally align eligible new predictors with the historical flood-event labels.
 - [x] Retrain candidate flood models with leakage-safe chronological validation and compare calibration, precision, recall, F1, PR-AUC, and ROC-AUC.
 - [x] Update durable model seeds, metadata, methodology, dashboard metrics, tests, and source documentation for the selected candidate.
-- [ ] Verify the updated production dashboard, publish the model upgrade, synchronize GitHub, and report the final comparison.
+- [x] Verify the updated production dashboard, publish the model upgrade, synchronize GitHub, and report the final comparison.
+- [x] Deliver the final v6-versus-v7 comparison, production URL, GitHub synchronization reference, and remaining tide-data limitation to the user.
