@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildProjectionFromStoredInputs, monitoringStatus, projectV7FeaturesForCells } from "./monitoring";
+import { buildProjectionFromStoredInputs, classifyFreshness, monitoringStatus, projectV7FeaturesForCells } from "./monitoring";
 
 describe("prospective monitoring safety contract", () => {
   it("labels future-time input logging as monitoring only, never a live flood alert", () => {
@@ -11,6 +11,13 @@ describe("prospective monitoring safety contract", () => {
     });
     expect(monitoringStatus.alertReadiness.mode).toBe("disabled");
     expect(monitoringStatus.openAlerts).toBe(0);
+  });
+
+  it("classifies monitoring-input freshness from a declared maximum age without treating missing inputs as current", () => {
+    const now = new Date("2026-08-16T18:00:00Z");
+    expect(classifyFreshness(new Date("2026-08-16T10:01:00Z"), 8, now)).toBe("current");
+    expect(classifyFreshness(new Date("2026-08-16T09:59:00Z"), 8, now)).toBe("late");
+    expect(classifyFreshness(null, 8, now)).toBe("not_yet_available");
   });
 
   it("creates model-ready per-cell v7 feature projections without a probability output", () => {

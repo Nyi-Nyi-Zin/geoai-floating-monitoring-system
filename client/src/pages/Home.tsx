@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
-import { BarChart3, Camera, CloudRain, Database, Eye, Info, Layers3, LoaderCircle, MapPinned, ShieldAlert, X } from "lucide-react";
+import { Activity, BarChart3, Camera, CloudRain, Database, Eye, Info, Layers3, LoaderCircle, MapPinned, ShieldAlert, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { FieldObservationModal } from "@/components/FieldObservationModal";
 import "leaflet/dist/leaflet.css";
@@ -44,6 +44,22 @@ function RainSparkline({ points }: { points: Array<{ observed_date: string; prec
   return <svg className="sparkline" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="Thirty-day ERA5 rainfall history"><path d={path} fill="none" stroke="#6ee7b7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /><path d={`M0,${height} ${path.replace("M", "L")} L${width},${height} Z`} fill="url(#rainFill)" opacity="0.35" /><defs><linearGradient id="rainFill" x1="0" y1="0" x2="0" y2="1"><stop stopColor="#6ee7b7" /><stop offset="1" stopColor="#6ee7b7" stopOpacity="0" /></linearGradient></defs></svg>;
 }
 
+function freshnessLabel(state?: "current" | "late" | "not_yet_available" | "unavailable") {
+  if (state === "current") return "Current";
+  if (state === "late") return "Needs refresh";
+  if (state === "not_yet_available") return "Awaiting first refresh";
+  return "Status unavailable";
+}
+
+function jobLabel(state?: "healthy" | "late" | "failed" | "not_yet_run" | "not_configured" | "unavailable") {
+  if (state === "healthy") return "Healthy";
+  if (state === "late") return "Late";
+  if (state === "failed") return "Last run failed";
+  if (state === "not_yet_run") return "Awaiting first run";
+  if (state === "not_configured") return "Not configured";
+  return "Unavailable";
+}
+
 export default function Home() {
   const [basemap, setBasemap] = useState<"satellite" | "terrain">("satellite");
   const [layers, setLayers] = useState<Record<LayerKey, boolean>>({ floodRisk: true, gridCells: false, historicalFlood: false, rivers: true, canals: true, boundary: true, labels: false });
@@ -61,6 +77,7 @@ export default function Home() {
   const weather = trpc.monitoring.weather.useQuery(undefined, { retry: 1 });
   const status = trpc.monitoring.status.useQuery();
   const prospective = trpc.monitoring.prospective.useQuery(undefined, { retry: 1 });
+  const operational = trpc.monitoring.operationalStatus.useQuery(undefined, { retry: 1, refetchInterval: 300_000 });
 
   useEffect(() => {
     const load = async () => {
@@ -102,6 +119,10 @@ export default function Home() {
   const alertReadiness = status.data?.alertReadiness;
   const prospectiveState = prospective.data;
   const prospectiveIssue = prospectiveState?.latestIssueTime ? new Date(prospectiveState.latestIssueTime).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "Awaiting first refresh";
+  const rainfallHealth = operational.data?.rainfallHistory;
+  const rainfallJob = operational.data?.jobs.find(job => job.key === "nightly-rainfall-refresh");
+  const prospectiveJob = operational.data?.jobs.find(job => job.key === "six-hour-prospective-monitoring-refresh");
+  const overallRefreshState = prospectiveJob?.state === "failed" || rainfallJob?.state === "failed" ? "Attention needed" : prospectiveState?.freshness === "late" || rainfallHealth?.state === "late" ? "Refresh late" : "Monitoring";
 
   return <div className="dashboard-shell">
     <main className="map-stage">
@@ -123,11 +144,11 @@ export default function Home() {
 
       <section className={`side-panel controls-panel ${mobileControlsOpen ? "mobile-controls-open" : ""}`} aria-hidden={!mobileControlsOpen && undefined}><div className="panel-heading"><Layers3 size={16} /><span>Layer control</span><button className="mobile-control-close" type="button" aria-label="Close map layers" onClick={() => setMobileControlsOpen(false)}><X size={16} /></button></div>{([ ["floodRisk", "Flood Risk"], ["gridCells", "Grid Cells"], ["historicalFlood", "Historical Flood"], ["rivers", "Rivers"], ["canals", "Canals"], ["boundary", "Township Boundary"], ["labels", "Labels"] ] as Array<[LayerKey, string]>).map(([key, label]) => <label className="layer-row" key={key}><span>{label}</span><button role="switch" aria-checked={layers[key]} className={`toggle ${layers[key] ? "enabled" : ""}`} onClick={() => setLayers(current => ({ ...current, [key]: !current[key] }))}><i /></button></label>)}</section>
 
-      <section className="side-panel rainfall-panel"><div className="panel-heading"><CloudRain size={16} /><span>Rainfall watch</span></div><div className="rain-title"><strong>{forecast.reduce((sum, point) => sum + point.precipitationMm, 0).toFixed(1)} mm</strong><span>next 7 days · Open-Meteo</span></div>{weather.isLoading ? <div className="loading-inline"><LoaderCircle size={16} />Loading forecast</div> : <RainBars points={forecast} />}<div className="history-header"><span>30-day ERA5 rainfall history</span><small>mm/day</small></div>{rainHistory.length ? <RainSparkline points={rainHistory} /> : <p className="empty-note">Historical rainfall will populate after the first nightly ERA5 refresh.</p>}</section>
+      <section className="side-panel rainfall-panel"><div className="panel-heading"><CloudRain size={16} /><span>Rainfall watch</span></div><div className="rain-title"><strong>{forecast.reduce((sum, point) => sum + point.precipitationMm, 0).toFixed(1)} mm</strong><span>next 7 days · Open-Meteo</span></div>{weather.isLoading ? <div className="loading-inline"><LoaderCircle size={16} />Loading forecast</div> : <RainBars points={forecast} />}<div className="history-header"><span>30-day ERA5 rainfall history</span><small>mm/day</small></div>{rainHistory.length ? <RainSparkline points={rainHistory} /> : <p className="empty-note">Historical rainfall will populate after the first nightly ERA5 refresh.</p>}<div className={`source-freshness ${rainfallHealth?.state ?? "unavailable"}`} role="status"><div><span>{rainfallHealth?.latestObservedDate ? `ERA5 through ${rainfallHealth.latestObservedDate}` : "ERA5 archive refresh"} · {jobLabel(rainfallJob?.state)}</span><strong>{freshnessLabel(rainfallHealth?.state)}</strong></div></div></section>
 
       <section className="side-panel hindcast-panel"><div className="panel-heading"><BarChart3 size={16} /><span>Experimental event hindcast</span></div><label className="select-label">Historical GFD event<select value={selectedEvent} onChange={event => setSelectedEvent(event.target.value)}>{events.map(event => <option key={event.id} value={event.id}>{event.start_date} · {event.name}</option>)}</select></label><div className="model-card"><div><span>{hindcast?.model.version ? "HGB v7 · 2018 holdout" : "v7 hydrologic model"}</span><strong>{hindcast?.event.area_km2?.toFixed(1) ?? "—"} km² observed extent</strong></div><div className="metric-pair"><span>Precision <b>{(precision * 100).toFixed(1)}%</b></span><span>Recall <b>{(recall * 100).toFixed(1)}%</b></span></div></div><div className="alert-readiness" aria-label="Alert and prospective monitoring readiness"><div><span>Alert workflow</span><strong>{alertReadiness?.label ?? "Monitoring only"}</strong></div><p>No public alert. Six-hour forecast inputs are logged for prospective validation only.</p><small>{prospectiveState?.label ?? "Prospective input monitoring"} · latest: {prospectiveIssue}{prospectiveState?.targetDate ? ` · target: ${prospectiveState.targetDate}` : ""}</small></div><div className="disclaimer"><ShieldAlert size={15} /><p>Historical hindcast only — 2018 holdout precision {(precision * 100).toFixed(1)}%, recall {(recall * 100).toFixed(1)}%. Not a public warning or life-safety decision.</p></div></section>
 
-      <section className="status-bar"><div><Database size={15} /><span>Spatial DB</span><strong>{spatialOnline ? "connected" : "checking"}</strong></div><div><ShieldAlert size={15} /><span>Open alerts</span><strong>{status.data?.openAlerts ?? 0}</strong></div><div><ShieldAlert size={15} /><span>Alert mode</span><strong>{alertReadiness?.label ?? "Monitoring only"}</strong></div><div><Eye size={15} /><span>Risk basis</span><strong>{status.data?.riskBasis ?? "terrain_screening"}</strong></div></section>
+      <section className="status-bar"><div><Database size={15} /><span>Spatial DB</span><strong>{spatialOnline ? "connected" : "checking"}</strong></div><div><Activity size={15} /><span>Data refresh</span><strong>{overallRefreshState}</strong></div><div><Activity size={15} /><span>Prospective job</span><strong>{freshnessLabel(prospectiveState?.freshness)} · {jobLabel(prospectiveJob?.state)}</strong></div><div><ShieldAlert size={15} /><span>Open alerts</span><strong>{status.data?.openAlerts ?? 0}</strong></div><div><ShieldAlert size={15} /><span>Alert mode</span><strong>{alertReadiness?.label ?? "Monitoring only"}</strong></div><div><Eye size={15} /><span>Risk basis</span><strong>{status.data?.riskBasis ?? "terrain_screening"}</strong></div></section>
       {loading && <div className="map-loader"><LoaderCircle size={24} /><span>Loading 5,549 terrain screening cells</span></div>}
     </main>
     <FieldObservationModal open={observationOpen} onClose={() => setObservationOpen(false)} />

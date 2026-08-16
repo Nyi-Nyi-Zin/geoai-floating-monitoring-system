@@ -1,4 +1,5 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 import { fieldObservations } from "../drizzle/schema";
 import { getDb } from "./db";
 import { storageGet, storagePut } from "./storage";
@@ -20,12 +21,21 @@ export type ObservationInput = {
 };
 
 const MAX_PHOTO_BYTES = 900_000;
+const MAX_SUBMISSIONS_PER_HOUR = 3;
+const SUBMISSION_WINDOW_MS = 60 * 60 * 1_000;
+
+function validImageSignature(bytes: Buffer, contentType: "image/jpeg" | "image/png" | "image/webp") {
+  if (contentType === "image/jpeg") return bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  if (contentType === "image/png") return bytes.length >= 8 && bytes.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  return bytes.length >= 12 && bytes.subarray(0, 4).equals(Buffer.from("RIFF")) && bytes.subarray(8, 12).equals(Buffer.from("WEBP"));
+}
 
 function decodePhoto(photo: NonNullable<ObservationInput["photo"]>) {
   const match = photo.dataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
   if (!match || match[1] !== photo.contentType) throw new Error("Invalid observation photo format");
   const bytes = Buffer.from(match[2], "base64");
   if (!bytes.length || bytes.length > MAX_PHOTO_BYTES) throw new Error("Observation photo must be at most 900 KB");
+  if (!validImageSignature(bytes, photo.contentType)) throw new Error("Observation photo bytes do not match the declared image type");
   const extension = photo.contentType === "image/jpeg" ? "jpg" : photo.contentType.split("/")[1];
   return { bytes, extension };
 }
@@ -33,11 +43,14 @@ function decodePhoto(photo: NonNullable<ObservationInput["photo"]>) {
 export async function submitObservation(reporterUserId: number, input: ObservationInput) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable for field observation submission");
+  const submittedSince = new Date(Date.now() - SUBMISSION_WINDOW_MS);
+  const recentRows = await db.select({ count: sql<number>`count(*)` }).from(fieldObservations).where(and(eq(fieldObservations.reporterUserId, reporterUserId), gte(fieldObservations.createdAt, submittedSince)));
+  if (Number(recentRows[0]?.count ?? 0) >= MAX_SUBMISSIONS_PER_HOUR) throw new Error("Observation submission limit reached. Please wait before submitting another report.");
   let photoKey: string | null = null;
   let photoContentType: string | null = null;
   if (input.photo) {
     const photo = decodePhoto(input.photo);
-    const stored = await storagePut(`field-observations/${reporterUserId}/observation.${photo.extension}`, photo.bytes, input.photo.contentType);
+    const stored = await storagePut(`field-observations/${reporterUserId}/${randomUUID()}.${photo.extension}`, photo.bytes, input.photo.contentType);
     photoKey = stored.key;
     photoContentType = input.photo.contentType;
   }
@@ -79,6 +92,9 @@ export async function listReviewQueue() {
 export async function reviewObservation(id: number, reviewerUserId: number, reviewStatus: Exclude<ReviewStatus, "submitted">, reviewNotes: string) {
   const db = await getDb();
   if (!db) throw new Error("Database unavailable for observation review");
+  const rows = await db.select({ reviewStatus: fieldObservations.reviewStatus }).from(fieldObservations).where(eq(fieldObservations.id, id)).limit(1);
+  if (!rows[0]) throw new Error("Field observation not found");
+  if (rows[0].reviewStatus !== "submitted") throw new Error("Field observation has already been reviewed and cannot be changed");
   await db.update(fieldObservations).set({ reviewStatus, reviewNotes: reviewNotes.trim(), reviewerUserId, reviewedAt: new Date() }).where(eq(fieldObservations.id, id));
   return { id, reviewStatus };
 }

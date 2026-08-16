@@ -60,3 +60,24 @@
 - [x] Define and document field-to-grid matching, lead-time windows, exclusions, calibration metrics, and non-promotion thresholds.
 - [x] Generate an evidence-backed prospective calibration report or a zero-evidence baseline that explicitly withholds unsupported accuracy metrics.
 - [x] Validate, publish, synchronize GitHub, and report prospective-calibration readiness limitations.
+- [x] Audit production readiness across data freshness, schedule health, API resilience, evidence governance, security controls, and user-facing operational disclosures.
+- [x] Implement prioritized data-quality and operational-observability improvements that are safe in autoscale hosting and retain monitoring-only safeguards.
+- [x] Strengthen validation auditability and analyst workflow controls without fabricating evidence or enabling unsupported public alerts.
+- [x] Verify, publish, synchronize GitHub, and report material production-readiness improvements and remaining safety limits.
+- [x] Prevent field-photo object-key collisions and strengthen photo-upload integrity checks without storing image bytes in the database.
+- [x] Add prospective-refresh freshness and schedule-health status fields so stale or failed monitoring inputs are visible to users and analysts.
+- [x] Add regression coverage for storage-key uniqueness, freshness-state classification, and schedule-health disclosure.
+- [x] Record sanitized scheduled-refresh failures in persistent job state and present source freshness plus job health in the public dashboard without exposing scheduler credentials.
+- [x] Backfill completed current-month ERA5 rainfall through the existing idempotent service so the historical-rainfall panel is populated before the first scheduled run.
+- [x] Correct operational rainfall freshness to report the latest observed ERA5 date when a batch shares write timestamps.
+- [x] Add database-backed submission throttling for protected field observations to reduce spam and duplicate evidence without suppressing legitimate reporters.
+- [x] Enforce one-time analyst disposition: only a submitted observation may be verified or rejected, and missing observations must return a controlled error.
+- [x] Add service and protected-router regression coverage for observation throttling and immutable review-state transitions.
+- [x] Publish an in-repository operator runbook covering data freshness states, safe rainfall backfill, schedule-failure response, field-evidence governance, and the non-alert policy.
+- [x] Publish a complete production-readiness audit that records scope, evidence, residual risks, and mitigations across data freshness, scheduler health, API resilience, evidence governance, security, and user disclosures.
+- [x] Surface explicit prospective-input freshness and six-hour job health in the dashboard, including a clear failed-refresh state that remains separate from alerts.
+- [x] Add regression coverage that verifies sanitized failed prospective-refresh state is disclosed through the public operational-health contract.
+- [x] Add an endpoint-level regression that supplies a failed prospective schedule record and verifies public operational status exposes only sanitized failed state and no scheduler or raw-error details.
+- [ ] Save the verified production-readiness checkpoint and publish the updated monitoring-only site.
+- [ ] Commit and synchronize the production-readiness release to the configured GitHub branch, then verify remote alignment.
+- [ ] Deliver the released production-readiness summary and unresolved monitoring-only safety limits.

@@ -4,7 +4,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { getObservationSummary, impactClasses, listMyObservations, listReviewQueue, reviewObservation, reviewStatuses, submitObservation } from "./fieldObservations";
-import { getLatestProspectiveMonitoring, getProspectiveFeatureProjection, getWeatherSnapshot, listStoredRainfall, monitoringStatus } from "./monitoring";
+import { getLatestProspectiveMonitoring, getOperationalMonitoringStatus, getProspectiveFeatureProjection, getWeatherSnapshot, listStoredRainfall, monitoringStatus } from "./monitoring";
 
 export const appRouter = router({
   system: systemRouter,
@@ -16,6 +16,7 @@ export const appRouter = router({
     status: publicProcedure.query(() => monitoringStatus),
     weather: publicProcedure.query(async () => ({ forecast: await getWeatherSnapshot(), storedHistory: await listStoredRainfall() })),
     prospective: publicProcedure.query(() => getLatestProspectiveMonitoring()),
+    operationalStatus: publicProcedure.query(() => getOperationalMonitoringStatus()),
     prospectiveFeatures: publicProcedure.input(z.object({ issueKey: z.string().min(1), targetDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(({ input }) => getProspectiveFeatureProjection(input.issueKey, input.targetDate)),
   }),
   observations: router({

@@ -17,11 +17,22 @@ export type ProspectiveMonitoringSummary = {
   label: "Prospective input monitoring";
   readiness: "pending_prospective_validation";
   latestIssueTime: string | null;
+  freshness: "current" | "late" | "not_yet_available" | "unavailable";
   targetDate: string | null;
   horizonDays: number | null;
   projectionStatus: string;
   qualityFlags: string[];
   reason: string;
+};
+
+export type FreshnessState = "current" | "late" | "not_yet_available" | "unavailable";
+type JobState = "healthy" | "late" | "failed" | "not_yet_run" | "not_configured" | "unavailable";
+type StoredScheduleResult = { status?: string; inserted?: number; targetCount?: number; skipped?: number; errorCode?: string };
+export type OperationalMonitoringStatus = {
+  generatedAt: string;
+  jobs: Array<{ key: string; label: string; expectedIntervalHours: number; state: JobState; lastAttemptAt: string | null; lastResultStatus: "success" | "failed" | "unknown" }>;
+  rainfallHistory: { state: FreshnessState; latestObservedDate: string | null; lastUpdatedAt: string | null };
+  prospectiveInputs: { state: FreshnessState; latestIssueTime: string | null };
 };
 
 type OpenMeteoDaily = { time?: string[]; precipitation_sum?: Array<number | null> };
@@ -99,10 +110,53 @@ function jsonValue(value: unknown) {
   return value;
 }
 
+export function classifyFreshness(timestamp: Date | null | undefined, maximumAgeHours: number, now = new Date()): FreshnessState {
+  if (!timestamp) return "not_yet_available";
+  const ageMilliseconds = now.getTime() - timestamp.getTime();
+  if (!Number.isFinite(ageMilliseconds)) return "unavailable";
+  return ageMilliseconds <= maximumAgeHours * 3_600_000 ? "current" : "late";
+}
+
+function parsedScheduleResult(value: unknown): StoredScheduleResult {
+  let parsed = jsonValue(value);
+  if (typeof parsed === "string") parsed = jsonValue(parsed);
+  return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as StoredScheduleResult : {};
+}
+
+export function summarizeScheduleHealth(lastRunAt: Date | null, lastResult: unknown, expectedIntervalHours: number, now = new Date()) {
+  const result = parsedScheduleResult(lastResult);
+  const lastResultStatus = result.status === "failed" ? "failed" as const : result.status === "success" || lastRunAt ? "success" as const : "unknown" as const;
+  const freshness = classifyFreshness(lastRunAt, expectedIntervalHours * 2, now);
+  const state: JobState = lastResultStatus === "failed" ? "failed" : freshness === "current" ? "healthy" : freshness === "late" ? "late" : "not_yet_run";
+  return { state, lastResultStatus };
+}
+
+function jobHealth(key: string, label: string, expectedIntervalHours: number, config: typeof scheduleConfigs.$inferSelect | undefined, now: Date) {
+  if (!config) return { key, label, expectedIntervalHours, state: "not_configured" as const, lastAttemptAt: null, lastResultStatus: "unknown" as const };
+  const summary = summarizeScheduleHealth(config.lastRunAt, config.lastResult, expectedIntervalHours, now);
+  return { key, label, expectedIntervalHours, ...summary, lastAttemptAt: config.lastRunAt?.toISOString() ?? null };
+}
+
+async function fetchWithRetry(url: string | URL, init: RequestInit, maximumAttempts = 3): Promise<Response> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= maximumAttempts; attempt++) {
+    try {
+      const response = await fetch(url, { ...init, signal: AbortSignal.timeout(20_000) });
+      if (response.ok || response.status < 500 || attempt === maximumAttempts) return response;
+      lastError = new Error(`Source request failed (${response.status})`);
+    } catch (error) {
+      lastError = error;
+      if (attempt === maximumAttempts) throw error;
+    }
+    await new Promise(resolve => setTimeout(resolve, attempt * 300));
+  }
+  throw lastError instanceof Error ? lastError : new Error("Source request failed after retries");
+}
+
 async function loadProspectiveStaticSeed() {
   if (staticSeedCache) return staticSeedCache;
   const signedUrl = await storageGetSignedUrl(PROSPECTIVE_STATIC_SEED_KEY);
-  const response = await fetch(signedUrl, { headers: { Accept: "application/json" } });
+  const response = await fetchWithRetry(signedUrl, { headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error(`Prospective static feature seed request failed (${response.status})`);
   const seed = (await response.json()) as StaticSeed;
   if (seed.schema !== "maubin-v7-static-cell-features-v1" || seed.model_version !== PROSPECTIVE_MODEL_VERSION || seed.cell_count !== seed.cells?.length || seed.cell_count !== 5549) throw new Error("Prospective static feature seed failed validation");
@@ -150,7 +204,7 @@ export async function getWeatherSnapshot() {
   const url = new URL(OPEN_METEO_FORECAST_URL);
   url.searchParams.set("latitude", String(MAUBIN.latitude)); url.searchParams.set("longitude", String(MAUBIN.longitude));
   url.searchParams.set("daily", "precipitation_sum"); url.searchParams.set("forecast_days", "7"); url.searchParams.set("timezone", "Asia/Yangon");
-  const response = await fetch(url, { headers: { Accept: "application/json" } });
+  const response = await fetchWithRetry(url, { headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error(`Open-Meteo forecast request failed (${response.status})`);
   const payload = (await response.json()) as OpenMeteoResponse;
   return buildRainfallRecords(payload.daily ?? {}, "open-meteo-forecast-maubin").map(row => ({ date: row.observedDate, precipitationMm: row.precipitationMm }));
@@ -162,7 +216,7 @@ export async function refreshCurrentMonthRainfall() {
   const url = new URL(OPEN_METEO_ARCHIVE_URL);
   url.searchParams.set("latitude", String(MAUBIN.latitude)); url.searchParams.set("longitude", String(MAUBIN.longitude));
   url.searchParams.set("start_date", isoDate(start)); url.searchParams.set("end_date", isoDate(end)); url.searchParams.set("daily", "precipitation_sum"); url.searchParams.set("timezone", "Asia/Yangon");
-  const response = await fetch(url, { headers: { Accept: "application/json" } });
+  const response = await fetchWithRetry(url, { headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error(`Open-Meteo ERA5 request failed (${response.status})`);
   const payload = (await response.json()) as OpenMeteoResponse; const records = buildRainfallRecords(payload.daily ?? {}, "open-meteo-era5-maubin");
   const db = await getDb(); if (!db) throw new Error("Database unavailable for rainfall_history upsert");
@@ -173,8 +227,8 @@ export async function refreshCurrentMonthRainfall() {
 export async function refreshProspectiveMonitoring(now = new Date()) {
   const { issueTime, issueKey } = sixHourIssue(now);
   const [weatherResponse, floodResponse] = await Promise.all([
-    fetch(`${OPEN_METEO_FORECAST_URL}?latitude=${MAUBIN.latitude}&longitude=${MAUBIN.longitude}&hourly=precipitation,soil_moisture_27_to_81cm&past_days=35&forecast_days=16&timezone=UTC`, { headers: { Accept: "application/json" } }),
-    fetch(`${OPEN_METEO_FLOOD_URL}?latitude=${MAUBIN.latitude}&longitude=${MAUBIN.longitude}&daily=river_discharge,river_discharge_p25,river_discharge_p75&past_days=35&forecast_days=30&timezone=UTC`, { headers: { Accept: "application/json" } }),
+    fetchWithRetry(`${OPEN_METEO_FORECAST_URL}?latitude=${MAUBIN.latitude}&longitude=${MAUBIN.longitude}&hourly=precipitation,soil_moisture_27_to_81cm&past_days=35&forecast_days=16&timezone=UTC`, { headers: { Accept: "application/json" } }),
+    fetchWithRetry(`${OPEN_METEO_FLOOD_URL}?latitude=${MAUBIN.latitude}&longitude=${MAUBIN.longitude}&daily=river_discharge,river_discharge_p25,river_discharge_p75&past_days=35&forecast_days=30&timezone=UTC`, { headers: { Accept: "application/json" } }),
   ]);
   if (!weatherResponse.ok) throw new Error(`Open-Meteo prospective weather request failed (${weatherResponse.status})`);
   if (!floodResponse.ok) throw new Error(`Open-Meteo prospective discharge request failed (${floodResponse.status})`);
@@ -235,12 +289,42 @@ export async function listStoredRainfall() {
 export async function getLatestProspectiveMonitoring(): Promise<ProspectiveMonitoringSummary> {
   const db = await getDb();
   const base = { mode: "monitoring_only" as const, label: "Prospective input monitoring" as const, readiness: "pending_prospective_validation" as const, reason: "Forecast rainfall and GloFAS proxy inputs are logged for prospective validation; no flood probability or alert is emitted." };
-  if (!db) return { ...base, latestIssueTime: null, targetDate: null, horizonDays: null, projectionStatus: "database_unavailable", qualityFlags: ["database_unavailable"] };
+  if (!db) return { ...base, latestIssueTime: null, freshness: "unavailable" as const, targetDate: null, horizonDays: null, projectionStatus: "database_unavailable", qualityFlags: ["database_unavailable"] };
   const rows = await db.select().from(prospectiveForecastSnapshots).orderBy(desc(prospectiveForecastSnapshots.issueTime), desc(prospectiveForecastSnapshots.targetDate)).limit(1);
   const row = rows[0];
-  if (!row) return { ...base, latestIssueTime: null, targetDate: null, horizonDays: null, projectionStatus: "awaiting_first_six_hour_refresh", qualityFlags: ["awaiting_first_six_hour_refresh"] };
+  if (!row) return { ...base, latestIssueTime: null, freshness: "not_yet_available" as const, targetDate: null, horizonDays: null, projectionStatus: "awaiting_first_six_hour_refresh", qualityFlags: ["awaiting_first_six_hour_refresh"] };
   const flags = jsonValue(row.qualityFlags);
-  return { ...base, latestIssueTime: row.issueTime.toISOString(), targetDate: row.targetDate, horizonDays: row.horizonDays, projectionStatus: row.projectionStatus, qualityFlags: Array.isArray(flags) ? flags.map(String) : ["invalid_quality_flags"] };
+  return { ...base, latestIssueTime: row.issueTime.toISOString(), freshness: classifyFreshness(row.issueTime, 12), targetDate: row.targetDate, horizonDays: row.horizonDays, projectionStatus: row.projectionStatus, qualityFlags: Array.isArray(flags) ? flags.map(String) : ["invalid_quality_flags"] };
+}
+
+export async function getOperationalMonitoringStatus(now = new Date()): Promise<OperationalMonitoringStatus> {
+  const db = await getDb();
+  if (!db) return {
+    generatedAt: now.toISOString(),
+    jobs: [
+      { key: "nightly-rainfall-refresh", label: "ERA5 rainfall refresh", expectedIntervalHours: 24, state: "unavailable", lastAttemptAt: null, lastResultStatus: "unknown" },
+      { key: "six-hour-prospective-monitoring-refresh", label: "Prospective input refresh", expectedIntervalHours: 6, state: "unavailable", lastAttemptAt: null, lastResultStatus: "unknown" },
+    ],
+    rainfallHistory: { state: "unavailable", latestObservedDate: null, lastUpdatedAt: null },
+    prospectiveInputs: { state: "unavailable", latestIssueTime: null },
+  };
+  const [configs, rainfallRows, snapshotRows] = await Promise.all([
+    db.select().from(scheduleConfigs),
+    db.select({ observedDate: rainfallHistory.observedDate, updatedAt: rainfallHistory.updatedAt }).from(rainfallHistory).orderBy(desc(rainfallHistory.observedDate), desc(rainfallHistory.updatedAt)).limit(1),
+    db.select({ issueTime: prospectiveForecastSnapshots.issueTime }).from(prospectiveForecastSnapshots).orderBy(desc(prospectiveForecastSnapshots.issueTime)).limit(1),
+  ]);
+  const configByKey = new Map(configs.map(config => [config.key, config]));
+  const rainfall = rainfallRows[0];
+  const snapshot = snapshotRows[0];
+  return {
+    generatedAt: now.toISOString(),
+    jobs: [
+      jobHealth("nightly-rainfall-refresh", "ERA5 rainfall refresh", 24, configByKey.get("nightly-rainfall-refresh"), now),
+      jobHealth("six-hour-prospective-monitoring-refresh", "Prospective input refresh", 6, configByKey.get("six-hour-prospective-monitoring-refresh"), now),
+    ],
+    rainfallHistory: { state: classifyFreshness(rainfall?.updatedAt, 36, now), latestObservedDate: rainfall?.observedDate ?? null, lastUpdatedAt: rainfall?.updatedAt?.toISOString() ?? null },
+    prospectiveInputs: { state: classifyFreshness(snapshot?.issueTime, 12, now), latestIssueTime: snapshot?.issueTime?.toISOString() ?? null },
+  };
 }
 
 export async function getProspectiveFeatureProjection(issueKey: string, targetDate: string) {
@@ -256,7 +340,7 @@ export async function getProspectiveFeatureProjection(issueKey: string, targetDa
 }
 
 export async function getScheduleConfig(key: string) { const db = await getDb(); if (!db) return null; const rows = await db.select().from(scheduleConfigs).where(eq(scheduleConfigs.key, key)).limit(1); return rows[0] ?? null; }
-export async function recordScheduleResult(key: string, taskUid: string, result: unknown) { const db = await getDb(); if (!db) throw new Error("Database unavailable for schedule state"); await db.insert(scheduleConfigs).values({ key, scheduleCronTaskUid: taskUid, lastRunAt: new Date(), lastResult: JSON.stringify(result) }).onDuplicateKeyUpdate({ set: { scheduleCronTaskUid: taskUid, lastRunAt: new Date(), lastResult: JSON.stringify(result) } }); }
+export async function recordScheduleResult(key: string, taskUid: string, result: unknown) { const db = await getDb(); if (!db) throw new Error("Database unavailable for schedule state"); await db.insert(scheduleConfigs).values({ key, scheduleCronTaskUid: taskUid, lastRunAt: new Date(), lastResult: result }).onDuplicateKeyUpdate({ set: { scheduleCronTaskUid: taskUid, lastRunAt: new Date(), lastResult: result } }); }
 
 export const monitoringStatus = {
   spatialDb: "online",

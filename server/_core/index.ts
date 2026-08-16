@@ -30,24 +30,38 @@ async function startServer() {
   registerStorageProxy(app); registerOAuthRoutes(app);
   app.use("/api/trpc", createExpressMiddleware({ router: appRouter, createContext }));
   app.post("/api/scheduled/rainfall-refresh", async (req, res) => {
+    let taskUid: string | null = null;
+    let managedTask = false;
     try {
       const user = await sdk.authenticateRequest(req);
       if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
+      taskUid = user.taskUid;
       const config = await getScheduleConfig("nightly-rainfall-refresh");
       if (!config || config.scheduleCronTaskUid !== user.taskUid) return res.json({ ok: true, skipped: "orphan" });
-      const result = await refreshCurrentMonthRainfall(); await recordScheduleResult("nightly-rainfall-refresh", user.taskUid, result);
+      managedTask = true;
+      const result = await refreshCurrentMonthRainfall(); await recordScheduleResult("nightly-rainfall-refresh", user.taskUid, { status: "success", result });
       return res.json({ ok: true, result });
-    } catch (error) { return res.status(500).json({ error: error instanceof Error ? error.message : String(error), timestamp: new Date().toISOString() }); }
+    } catch (error) {
+      if (managedTask && taskUid) { try { await recordScheduleResult("nightly-rainfall-refresh", taskUid, { status: "failed", errorCode: "rainfall_refresh_failed" }); } catch { /* Preserve the original scheduler failure response when persistence is unavailable. */ } }
+      return res.status(500).json({ error: error instanceof Error ? error.message : String(error), timestamp: new Date().toISOString() });
+    }
   });
   app.post("/api/scheduled/prospective-monitoring-refresh", async (req, res) => {
+    let taskUid: string | null = null;
+    let managedTask = false;
     try {
       const user = await sdk.authenticateRequest(req);
       if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
+      taskUid = user.taskUid;
       const config = await getScheduleConfig("six-hour-prospective-monitoring-refresh");
       if (!config || config.scheduleCronTaskUid !== user.taskUid) return res.json({ ok: true, skipped: "orphan" });
-      const result = await refreshProspectiveMonitoring(); await recordScheduleResult("six-hour-prospective-monitoring-refresh", user.taskUid, result);
+      managedTask = true;
+      const result = await refreshProspectiveMonitoring(); await recordScheduleResult("six-hour-prospective-monitoring-refresh", user.taskUid, { status: "success", result });
       return res.json({ ok: true, result });
-    } catch (error) { return res.status(500).json({ error: error instanceof Error ? error.message : String(error), timestamp: new Date().toISOString() }); }
+    } catch (error) {
+      if (managedTask && taskUid) { try { await recordScheduleResult("six-hour-prospective-monitoring-refresh", taskUid, { status: "failed", errorCode: "prospective_refresh_failed" }); } catch { /* Preserve the original scheduler failure response when persistence is unavailable. */ } }
+      return res.status(500).json({ error: error instanceof Error ? error.message : String(error), timestamp: new Date().toISOString() });
+    }
   });
   app.all("/api/spatial/*", async (req, res) => {
     try { const upstream = await fetch(`http://127.0.0.1:8010${req.originalUrl.replace("/api/spatial", "")}`); const body = await upstream.arrayBuffer(); res.status(upstream.status); res.setHeader("content-type", upstream.headers.get("content-type") ?? "application/json"); res.send(Buffer.from(body)); }

@@ -33,4 +33,10 @@ describe("field observation protected router success paths", () => {
     await expect(caller.observations.review({ id: 91, reviewStatus: "verified", reviewNotes: "Coordinates and photo reviewed." })).resolves.toEqual({ id: 91, reviewStatus: "verified" });
     expect(mocked.reviewObservation).toHaveBeenCalledWith(91, 1, "verified", "Coordinates and photo reviewed.");
   });
+
+  it("does not bypass an immutable-review service rejection through the protected API", async () => {
+    mocked.reviewObservation.mockRejectedValueOnce(new Error("Field observation has already been reviewed and cannot be changed"));
+    const caller = appRouter.createCaller({ user: administrator, req: {} as TrpcContext["req"], res: {} as TrpcContext["res"] });
+    await expect(caller.observations.review({ id: 91, reviewStatus: "rejected", reviewNotes: "A second review is not permitted." })).rejects.toThrow("already been reviewed");
+  });
 });
