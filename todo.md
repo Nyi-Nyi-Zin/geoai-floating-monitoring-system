@@ -59,4 +59,4 @@
 - [x] Audit verified field observations and timestamped prospective snapshot coverage without creating synthetic evidence.
 - [x] Define and document field-to-grid matching, lead-time windows, exclusions, calibration metrics, and non-promotion thresholds.
 - [x] Generate an evidence-backed prospective calibration report or a zero-evidence baseline that explicitly withholds unsupported accuracy metrics.
-- [ ] Validate, publish, synchronize GitHub, and report prospective-calibration readiness limitations.
+- [x] Validate, publish, synchronize GitHub, and report prospective-calibration readiness limitations.
