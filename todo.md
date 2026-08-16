@@ -35,3 +35,6 @@
 - [x] Engineer leakage-safe candidate features and retrain comparative models against the v7 baseline on a common chronological evaluation.
 - [x] Promote only a demonstrably improved candidate; otherwise retain v7 and document the negative experiment evidence and remaining blockers.
 - [x] Verify any qualified release, synchronize GitHub, and report the model-improvement findings and operational limitations.
+- [x] Audit the DeltaWatch phone layout for map visibility, panel overflow, touch targets, and status readability at common mobile widths.
+- [x] Implement responsive mobile layout rules for the map controls, rainfall and hindcast information panels, and status bar without weakening safety disclosures.
+- [ ] Verify mobile and desktop rendering, publish the responsive release, synchronize GitHub, and report the result.
