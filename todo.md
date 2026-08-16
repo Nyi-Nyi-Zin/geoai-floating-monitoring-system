@@ -78,6 +78,7 @@
 - [x] Surface explicit prospective-input freshness and six-hour job health in the dashboard, including a clear failed-refresh state that remains separate from alerts.
 - [x] Add regression coverage that verifies sanitized failed prospective-refresh state is disclosed through the public operational-health contract.
 - [x] Add an endpoint-level regression that supplies a failed prospective schedule record and verifies public operational status exposes only sanitized failed state and no scheduler or raw-error details.
-- [ ] Save the verified production-readiness checkpoint and publish the updated monitoring-only site.
-- [ ] Commit and synchronize the production-readiness release to the configured GitHub branch, then verify remote alignment.
-- [ ] Deliver the released production-readiness summary and unresolved monitoring-only safety limits.
+- [x] Save the verified production-readiness checkpoint and publish the updated monitoring-only site.
+- [x] Commit and synchronize the production-readiness release to the configured GitHub branch, then verify remote alignment.
+- [x] Deliver the released production-readiness summary and unresolved monitoring-only safety limits.
+- [x] Deliver a user-facing production-readiness release summary covering the deployed URL, checkpoint version, GitHub branch commit, key improvements, validation results, and remaining monitoring-only limits.
