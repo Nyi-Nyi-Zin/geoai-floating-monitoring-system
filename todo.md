@@ -37,4 +37,4 @@
 - [x] Verify any qualified release, synchronize GitHub, and report the model-improvement findings and operational limitations.
 - [x] Audit the DeltaWatch phone layout for map visibility, panel overflow, touch targets, and status readability at common mobile widths.
 - [x] Implement responsive mobile layout rules for the map controls, rainfall and hindcast information panels, and status bar without weakening safety disclosures.
-- [ ] Verify mobile and desktop rendering, publish the responsive release, synchronize GitHub, and report the result.
+- [x] Verify mobile and desktop rendering, publish the responsive release, synchronize GitHub, and report the result.
