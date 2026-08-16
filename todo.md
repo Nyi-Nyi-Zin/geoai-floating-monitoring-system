@@ -38,3 +38,12 @@
 - [x] Audit the DeltaWatch phone layout for map visibility, panel overflow, touch targets, and status readability at common mobile widths.
 - [x] Implement responsive mobile layout rules for the map controls, rainfall and hindcast information panels, and status bar without weakening safety disclosures.
 - [x] Verify mobile and desktop rendering, publish the responsive release, synchronize GitHub, and report the result.
+- [x] Audit eligible current and forecast rainfall, upstream-flow, river-stage, and tide/surge data for a prospective Maubin prediction pipeline, including latency and provenance.
+- [x] Compare safe automated prediction operating modes and establish monitoring-only activation gates, prospective validation requirements, and data-quality controls.
+- [ ] Build only the eligible monitoring-only ingestion and future-time prediction components; retain v7 historical hindcast when inputs or validation are insufficient.
+- [ ] Run timestamped prospective validation, verify automation behavior, publish any safe monitoring outputs, synchronize GitHub, and report remaining readiness limits.
+- [x] Create a six-hour forecast snapshot store with immutable issue timestamps, source coverage, quality flags, and monitoring-only output metadata.
+- [x] Implement idempotent forecast rainfall, soil-moisture, and GloFAS-discharge ingestion that does not emit alerts.
+- [ ] Implement and durably retain per-cell future-time v7 feature projections by combining forecast inputs with the existing static terrain, land-cover, drainage, and levee context for each target date.
+- [ ] Add end-to-end regression coverage that verifies durable per-cell prospective features are retrievable for a target date while probability, alert, and predicted-label fields remain absent.
+- [ ] Create and verify the project-level six-hour refresh schedule, expose a clearly labelled prospective monitoring status, and preserve audit-ready validation records.

@@ -9,7 +9,7 @@ import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
-import { getScheduleConfig, recordScheduleResult, refreshCurrentMonthRainfall } from "../monitoring";
+import { getScheduleConfig, recordScheduleResult, refreshCurrentMonthRainfall, refreshProspectiveMonitoring } from "../monitoring";
 import { sdk } from "./sdk";
 
 async function portAvailable(port: number) { return await new Promise<boolean>(resolve => { const server = net.createServer(); server.listen(port, () => server.close(() => resolve(true))); server.on("error", () => resolve(false)); }); }
@@ -36,6 +36,16 @@ async function startServer() {
       const config = await getScheduleConfig("nightly-rainfall-refresh");
       if (!config || config.scheduleCronTaskUid !== user.taskUid) return res.json({ ok: true, skipped: "orphan" });
       const result = await refreshCurrentMonthRainfall(); await recordScheduleResult("nightly-rainfall-refresh", user.taskUid, result);
+      return res.json({ ok: true, result });
+    } catch (error) { return res.status(500).json({ error: error instanceof Error ? error.message : String(error), timestamp: new Date().toISOString() }); }
+  });
+  app.post("/api/scheduled/prospective-monitoring-refresh", async (req, res) => {
+    try {
+      const user = await sdk.authenticateRequest(req);
+      if (!user.isCron || !user.taskUid) return res.status(403).json({ error: "cron-only" });
+      const config = await getScheduleConfig("six-hour-prospective-monitoring-refresh");
+      if (!config || config.scheduleCronTaskUid !== user.taskUid) return res.json({ ok: true, skipped: "orphan" });
+      const result = await refreshProspectiveMonitoring(); await recordScheduleResult("six-hour-prospective-monitoring-refresh", user.taskUid, result);
       return res.json({ ok: true, result });
     } catch (error) { return res.status(500).json({ error: error instanceof Error ? error.message : String(error), timestamp: new Date().toISOString() }); }
   });

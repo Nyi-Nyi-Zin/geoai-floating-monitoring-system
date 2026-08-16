@@ -14,11 +14,16 @@ describe("monitoring.status", () => {
       riskBasis: "terrain_screening",
       openAlerts: 0,
       spatialDb: "online",
-      modelVersion: "maubin-flood-event-logistic-v6",
+      modelVersion: "maubin-flood-event-hgb-v7",
       modelStatus: "experimental",
       alertReadiness: {
         mode: "disabled",
         label: "Monitoring only",
+        delivery: "dashboard_only",
+      },
+      prospectiveReadiness: {
+        mode: "inputs_only",
+        label: "Prospective monitoring",
         delivery: "dashboard_only",
       },
     });

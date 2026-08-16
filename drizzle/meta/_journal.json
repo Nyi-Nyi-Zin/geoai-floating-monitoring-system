@@ -15,6 +15,13 @@
       "when": 1786889130751,
       "tag": "0001_nostalgic_dreaming_celestial",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1786905821118,
+      "tag": "0002_gorgeous_lightspeed",
+      "breakpoints": true
     }
   ]
 }
