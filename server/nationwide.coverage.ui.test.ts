@@ -13,6 +13,10 @@ describe("nationwide coverage mode", () => {
     expect(source).toContain("Historical source evidence");
     expect(source).toContain("Static context & candidate gate");
     expect(source).toContain("No nationwide candidate fitted");
+    expect(source).toContain("Upstream-flow readiness");
+    expect(source).toContain("not a model feature");
+    expect(source).toContain("Prospective validation");
+    expect(source).toContain("No verified nationwide outcomes yet");
     expect(source).toContain("not a forecast");
   });
 });

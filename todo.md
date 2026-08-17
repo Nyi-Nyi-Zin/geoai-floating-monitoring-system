@@ -130,3 +130,7 @@
 - [x] Inspect and document a nationwide land-cover source and a nationwide waterways source, including provenance, coverage, access status, and operational limitations.
 - [x] Update the nationwide scope assessment with explicit verified land-cover and waterways inventory rows before closing data-inventory feasibility.
 - [x] Diagnose and fix the reported production blank-screen rendering failure on the deployed DeltaWatch dashboard.
+- [x] Audit documented, eligible nationwide upstream-flow sources and latency constraints before ingesting any new candidate feature.
+- [x] Implement only a bounded, provenance-preserving nationwide upstream-flow readiness acquisition that cannot create model scores, predictions, or alerts.
+- [x] Extend nationwide evidence-readiness disclosures with upstream-flow and prospective-validation availability states while preserving the no-fit gate.
+- [ ] Verify, publish, synchronize GitHub, and report the resulting nationwide monitoring readiness update.

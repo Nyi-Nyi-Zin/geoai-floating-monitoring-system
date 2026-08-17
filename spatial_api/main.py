@@ -14,7 +14,7 @@ RAINFALL_SEED_PATH = "/manus-storage/maubin_rainfall_seed_b7223d86.json"
 MYANMAR_ADMIN_SEED_PATH = "/manus-storage/myanmar_admin_seed_v1_ff8b1711.json"
 MYANMAR_ADMIN_DISPLAY_PATH = "/manus-storage/myanmar_admin1_display_v1_bbe6a3f3.json"
 MYANMAR_ADMIN_PARTITIONS_PATH = "/manus-storage/myanmar_admin1_partitions_v1_a330f15d.json"
-MYANMAR_ADMIN_EVIDENCE_READINESS_PATH = "/manus-storage/myanmar_admin1_evidence_readiness_v2_f3cfd336.json"
+MYANMAR_ADMIN_EVIDENCE_READINESS_PATH = "/manus-storage/myanmar_admin1_evidence_readiness_v3_4d6000e7.json"
 
 
 def load_json(path: str) -> dict:
@@ -173,6 +173,8 @@ def national_admin_evidence_readiness() -> dict:
         "region_count": seed.get("region_count", 0),
         "regions": seed.get("regions", []),
         "static_context": seed.get("static_context"),
+        "upstream_flow_readiness": seed.get("upstream_flow_readiness"),
+        "prospective_validation_readiness": seed.get("prospective_validation_readiness"),
         "candidate_gate": seed.get("candidate_gate"),
         "interpretation": seed.get("interpretation"),
         "limits": seed.get("limits", []),
