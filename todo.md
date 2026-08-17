@@ -174,3 +174,5 @@ The earlier EWDS items remain intentionally open until the user completes the se
 - [x] Validate and deliver the diagram artifact without changing Maubin or Myanmar application behavior.
 - [x] Redesign the Maubin flow as a reference-style infographic with numbered cards, blue/green side panels, a central system card, and clear operational arrows.
 - [x] Validate and deliver the reference-style Maubin flow infographic without changing application behavior.
+- [x] Redesign the infographic as a public-only DeltaWatch flow with no Admin / Operator section, no login step, and no Maubin naming.
+- [x] Validate and deliver the revised public login-free infographic without changing application behavior.
