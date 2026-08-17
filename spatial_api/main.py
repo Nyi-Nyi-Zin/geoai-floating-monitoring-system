@@ -11,6 +11,8 @@ SEED_BASE_URL = os.getenv("SPATIAL_SEED_BASE_URL", "http://127.0.0.1:3000")
 SPATIAL_SEED_PATH = "/manus-storage/maubin_spatial_seed_08a16481.json"
 HINDCAST_SEED_PATH = "/manus-storage/maubin_hindcast_seed_v7_e80e6338.json"
 RAINFALL_SEED_PATH = "/manus-storage/maubin_rainfall_seed_b7223d86.json"
+MYANMAR_ADMIN_SEED_PATH = "/manus-storage/myanmar_admin_seed_v1_ff8b1711.json"
+MYANMAR_ADMIN_DISPLAY_PATH = "/manus-storage/myanmar_admin1_display_v1_bbe6a3f3.json"
 
 
 def load_json(path: str) -> dict:
@@ -31,6 +33,16 @@ def hindcast_seed() -> dict:
 @lru_cache(maxsize=1)
 def rainfall_seed() -> dict:
     return load_json(RAINFALL_SEED_PATH)
+
+
+@lru_cache(maxsize=1)
+def myanmar_admin_seed() -> dict:
+    return load_json(MYANMAR_ADMIN_SEED_PATH)
+
+
+@lru_cache(maxsize=1)
+def myanmar_admin_display_seed() -> dict:
+    return load_json(MYANMAR_ADMIN_DISPLAY_PATH)
 
 
 def feature_type(feature: dict) -> str:
@@ -108,3 +120,23 @@ def hindcast(event_id: str) -> dict:
 @app.get("/rainfall-history")
 def rainfall_history() -> dict:
     return rainfall_seed()
+
+
+@app.get("/national-admin/metadata")
+def national_admin_metadata() -> dict:
+    seed = myanmar_admin_seed()
+    return {
+        "schema": seed.get("schema"),
+        "source": seed.get("source"),
+        "coverage": seed.get("coverage"),
+    }
+
+
+@app.get("/national-admin/boundary")
+def national_admin_boundary() -> dict:
+    return myanmar_admin_seed().get("admin0", {"type": "FeatureCollection", "features": []})
+
+
+@app.get("/national-admin/regions")
+def national_admin_regions() -> dict:
+    return myanmar_admin_display_seed().get("admin1", {"type": "FeatureCollection", "features": []})

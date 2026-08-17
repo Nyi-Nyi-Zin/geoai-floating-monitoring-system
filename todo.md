@@ -83,10 +83,10 @@
 - [x] Deliver the released production-readiness summary and unresolved monitoring-only safety limits.
 - [x] Deliver a user-facing production-readiness release summary covering the deployed URL, checkpoint version, GitHub branch commit, key improvements, validation results, and remaining monitoring-only limits.
 
-- [ ] Define the nationwide Myanmar monitoring boundary, spatial resolution, administrative-region hierarchy, and preserved monitoring-only safety policy.
-- [ ] Quantify nationwide cell count, storage, API payload, map-rendering, and six-hour compute implications relative to the 5,549-cell Maubin prototype.
-- [ ] Inventory available nationwide rainfall, terrain, land-cover, waterways, discharge proxies, flood labels, and local validation coverage without fabricating missing evidence.
-- [ ] Design a phased country-scale architecture that can reuse Maubin feature engineering while avoiding a single oversized map payload.
+- [x] Define the nationwide Myanmar monitoring boundary, spatial resolution, administrative-region hierarchy, and preserved monitoring-only safety policy.
+- [x] Quantify nationwide cell count, storage, API payload, map-rendering, and six-hour compute implications relative to the 5,549-cell Maubin prototype.
+- [x] Inventory available nationwide rainfall, terrain, land-cover, waterways, discharge proxies, flood labels, and local validation coverage without fabricating missing evidence.
+- [x] Design a phased country-scale architecture that can reuse Maubin feature engineering while avoiding a single oversized map payload.
 - [ ] Evaluate region-aware model transfer and chronological validation before showing any nationwide risk output.
 - [ ] Add country-scale map filters, progressive loading, and explicit regional data-coverage disclosures.
 - [ ] Verify, publish, synchronize GitHub, and report nationwide expansion timing, readiness, and safety limits.
@@ -94,9 +94,16 @@
 
 ## Nationwide Expansion Workstream
 
-- [ ] Inspect the current Maubin spatial seed dimensions and feature schema as the baseline for nationwide sizing.
-- [ ] Estimate nationwide processing and storage from real source-grid or administrative-boundary data rather than simulated cells.
-- [ ] Record a nationwide scope decision and phased rollout recommendation before implementing country-scale prediction outputs.
-- [ ] Preserve Monitoring only status until nationwide regional validation and local evidence support any broader operational claim.
+- [x] Inspect the current Maubin spatial seed dimensions and feature schema as the baseline for nationwide sizing.
+- [x] Estimate nationwide processing and storage from real source-grid or administrative-boundary data rather than simulated cells.
+- [x] Record a nationwide scope decision and phased rollout recommendation before implementing country-scale prediction outputs.
+- [x] Preserve Monitoring only status until nationwide regional validation and local evidence support any broader operational claim.
 - [x] Push the completed Maubin production-readiness commit to GitHub branch `feat/maubin` and verify the remote SHA.
-- [ ] Create GitHub branch `feat/myanmar` from the verified Maubin baseline, check it out locally, and verify branch isolation before nationwide edits.
+- [x] Create GitHub branch `feat/myanmar` from the verified Maubin baseline, check it out locally, and verify branch isolation before nationwide edits.
+- [x] Prepare a provenance-preserving Myanmar Admin 0/Admin 1 boundary seed from the vetted OCHA/MIMU package and expose it through a lightweight spatial service contract.
+- [x] Add a nationwide coverage mode that loads the real Admin 1 index only on demand and labels every region as not yet assessed rather than implying a flood prediction.
+- [x] Fix the nationwide coverage loader lifecycle so a successful Admin 1 response is not discarded during its own loading-state rerender.
+- [x] Generate and serve a separately simplified Admin 1 display geometry so the country-scale map avoids shipping the full 4.9 MB source boundary payload on demand.
+- [ ] Reduce the client build’s existing >500 kB JavaScript chunk before expanding country-scale interaction beyond the lightweight Admin 1 coverage index.
+- [x] Inspect and document a nationwide land-cover source and a nationwide waterways source, including provenance, coverage, access status, and operational limitations.
+- [x] Update the nationwide scope assessment with explicit verified land-cover and waterways inventory rows before closing data-inventory feasibility.
