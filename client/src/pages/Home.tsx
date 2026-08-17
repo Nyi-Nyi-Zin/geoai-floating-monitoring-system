@@ -12,6 +12,7 @@ type SpatialCollection = FeatureCollection<Geometry, Record<string, unknown>>;
 type FloodEvent = { id: string; name: string; start_date: string; end_date: string; area_km2: number; geometry: Geometry };
 type Hindcast = { event: FloodEvent; model: { version: string; threshold?: number; metrics?: { precision?: number; recall?: number; f1?: number; roc_auc?: number; pr_auc?: number }; predictors?: { tide?: string } }; predictions: Array<{ cell_id: string; probability: number; predicted_label: boolean }> };
 type NationalAdminMetadata = { source?: { boundary_valid_on?: string; dataset?: string }; coverage?: { admin1_feature_count?: number; status?: string } };
+type NationalEvidenceReadiness = { region_count?: number; regions?: Array<{ admin1_pcode: string; admin1_name: string; evidence_readiness: string }>; interpretation?: string; limits?: string[] };
 
 const satelliteTiles = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const terrainTiles = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
@@ -85,6 +86,7 @@ export default function Home() {
   const [nationwideMode, setNationwideMode] = useState(false);
   const [nationalRegions, setNationalRegions] = useState<SpatialCollection | null>(null);
   const [nationalMetadata, setNationalMetadata] = useState<NationalAdminMetadata | null>(null);
+  const [nationalEvidence, setNationalEvidence] = useState<NationalEvidenceReadiness | null>(null);
   const [nationalLoading, setNationalLoading] = useState(false);
   const weather = trpc.monitoring.weather.useQuery(undefined, { retry: 1 });
   const status = trpc.monitoring.status.useQuery();
@@ -116,10 +118,11 @@ export default function Home() {
     Promise.all([
       fetch("/api/spatial/national-admin/metadata").then(response => response.ok ? response.json() : null),
       fetch("/api/spatial/national-admin/regions").then(response => response.ok ? response.json() : null),
-    ]).then(([metadata, regions]) => {
+      fetch("/api/spatial/national-admin/evidence-readiness").then(response => response.ok ? response.json() : null),
+    ]).then(([metadata, regions, evidence]) => {
       if (!active) return;
-      setNationalMetadata(metadata); setNationalRegions(regions);
-    }).catch(() => { if (active) setNationalRegions(null); }).finally(() => { if (active) setNationalLoading(false); });
+      setNationalMetadata(metadata); setNationalRegions(regions); setNationalEvidence(evidence);
+    }).catch(() => { if (active) { setNationalRegions(null); setNationalEvidence(null); } }).finally(() => { if (active) setNationalLoading(false); });
     return () => { active = false; };
   }, [nationalRegions, nationwideMode]);
 
@@ -149,6 +152,7 @@ export default function Home() {
   const rainfallJob = operational.data?.jobs.find(job => job.key === "nightly-rainfall-refresh");
   const prospectiveJob = operational.data?.jobs.find(job => job.key === "six-hour-prospective-monitoring-refresh");
   const overallRefreshState = prospectiveJob?.state === "failed" || rainfallJob?.state === "failed" ? "Attention needed" : prospectiveState?.freshness === "late" || rainfallHealth?.state === "late" ? "Refresh late" : "Monitoring";
+  const historicalOnlyRegions = nationalEvidence?.regions?.filter(region => region.evidence_readiness === "historical_source_coverage_only_not_validated_for_prediction").length ?? 0;
 
   return <div className="dashboard-shell">
     <main className="map-stage">
@@ -162,7 +166,7 @@ export default function Home() {
         {!nationwideMode && layers.rivers && riverLayer && <GeoJSON data={riverLayer} style={{ color: "#38bdf8", weight: 2.2, opacity: 0.92 }} />}
         {!nationwideMode && layers.canals && canalLayer && <GeoJSON data={canalLayer} style={{ color: "#65a30d", weight: 1.4, opacity: 0.88 }} />}
         {!nationwideMode && historicalFeatures && <GeoJSON data={historicalFeatures} style={{ color: "#a78bfa", weight: 1.4, fillColor: "#7c3aed", fillOpacity: 0.28 }} />}
-        {nationwideMode && nationalRegions && <GeoJSON data={nationalRegions} style={{ color: "#86efac", weight: 0.8, fillColor: "#334155", fillOpacity: 0.22 }} onEachFeature={(feature, layer) => { const name = String(feature.properties?.adm1_name ?? "Myanmar region"); layer.bindTooltip(`${name} · Not yet assessed`, { sticky: true, className: "map-label" }); }} />}
+        {nationwideMode && nationalRegions && <GeoJSON data={nationalRegions} style={{ color: "#86efac", weight: 0.8, fillColor: "#334155", fillOpacity: 0.22 }} onEachFeature={(feature, layer) => { const name = String(feature.properties?.adm1_name ?? "Myanmar region"); const region = nationalEvidence?.regions?.find(item => item.admin1_pcode === feature.properties?.adm1_pcode); const evidence = region?.evidence_readiness === "historical_source_coverage_only_not_validated_for_prediction" ? "historical source coverage only" : region?.evidence_readiness === "limited_observed_flood_examples" ? "limited historical examples" : "historical source coverage insufficient"; layer.bindTooltip(`${name} · ${evidence} · not a forecast`, { sticky: true, className: "map-label" }); }} />}
       </MapContainer>
       <div className="map-gradient" />
       <header className="topbar">
@@ -170,7 +174,7 @@ export default function Home() {
         <div className="top-actions"><div className="basemap-switch" aria-label="Basemap selector"><button type="button" className={basemap === "satellite" ? "active" : ""} aria-pressed={basemap === "satellite"} onClick={() => setBasemap("satellite")}>Satellite</button><button type="button" className={basemap === "terrain" ? "active" : ""} aria-pressed={basemap === "terrain"} onClick={() => setBasemap("terrain")}>Terrain</button></div><button className={`nationwide-button ${nationwideMode ? "active" : ""}`} type="button" aria-pressed={nationwideMode} onClick={() => setNationwideMode(current => !current)}><MapPinned size={15} /> Myanmar coverage</button><button className="mobile-layers-button" type="button" aria-label="Open map layers" aria-expanded={mobileControlsOpen} onClick={() => setMobileControlsOpen(true)}><Layers3 size={16} /></button><div className="status-pill"><span className={spatialOnline ? "status-dot online" : "status-dot"} />{spatialOnline ? "Spatial DB online" : "Spatial API connecting"}</div><button className="evidence-button" type="button" onClick={() => setObservationOpen(true)}><Camera size={15} /> Evidence</button><button className="ghost-button" onClick={() => setAboutOpen(true)}><Info size={16} /> Methodology</button></div>
       </header>
 
-      {nationwideMode && <section className="national-coverage-panel" aria-live="polite"><span className="eyebrow">Nationwide coverage index</span><strong>{nationalLoading ? "Loading Admin 1 boundaries" : `${nationalMetadata?.coverage?.admin1_feature_count ?? 0} Admin 1 regions indexed`}</strong><p>Source geometry is available. Flood prediction, probability, and regional accuracy are not yet assessed.</p><small>{nationalMetadata?.source?.dataset ?? "Boundary source unavailable"}{nationalMetadata?.source?.boundary_valid_on ? ` · valid from ${nationalMetadata.source.boundary_valid_on}` : ""}</small></section>}
+      {nationwideMode && <section className="national-coverage-panel" aria-live="polite"><span className="eyebrow">Nationwide coverage index</span><strong>{nationalLoading ? "Loading Admin 1 boundaries" : `${nationalMetadata?.coverage?.admin1_feature_count ?? 0} Admin 1 regions indexed`}</strong><p>Source geometry is available. Flood prediction, probability, and regional accuracy are not yet assessed.</p><div className="national-evidence-readiness"><span>Historical source evidence</span><strong>{nationalEvidence ? `${historicalOnlyRegions} regions with historical coverage only` : "Loading historical coverage summary"}</strong><small>{nationalEvidence?.interpretation ?? "Observed-history summary only; not a forecast."}</small></div><small>{nationalMetadata?.source?.dataset ?? "Boundary source unavailable"}{nationalMetadata?.source?.boundary_valid_on ? ` · valid from ${nationalMetadata.source.boundary_valid_on}` : ""}</small></section>}
 
       <section className={`side-panel controls-panel ${mobileControlsOpen ? "mobile-controls-open" : ""}`} aria-hidden={!mobileControlsOpen && undefined}><div className="panel-heading"><Layers3 size={16} /><span>Layer control</span><button className="mobile-control-close" type="button" aria-label="Close map layers" onClick={() => setMobileControlsOpen(false)}><X size={16} /></button></div>{([ ["floodRisk", "Flood Risk"], ["gridCells", "Grid Cells"], ["historicalFlood", "Historical Flood"], ["rivers", "Rivers"], ["canals", "Canals"], ["boundary", "Township Boundary"], ["labels", "Labels"] ] as Array<[LayerKey, string]>).map(([key, label]) => <label className="layer-row" key={key}><span>{label}</span><button role="switch" aria-checked={layers[key]} className={`toggle ${layers[key] ? "enabled" : ""}`} onClick={() => setLayers(current => ({ ...current, [key]: !current[key] }))}><i /></button></label>)}</section>
 

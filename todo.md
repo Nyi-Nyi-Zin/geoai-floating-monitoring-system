@@ -91,6 +91,13 @@
 - [x] Build a reproducible Myanmar historical-flood event catalog from documented GFD/DFO metadata before downloading or labeling nationwide model-training events.
 - [x] Audit the public archive sizes and geographic label-processing implications for the selected Myanmar GFD events before downloading any nationwide flood rasters.
 - [x] Derive an Admin 1 partition manifest with real source P-codes and bounding boxes to support bounded regional label and feature-processing batches without creating predictions.
+- [x] Download and checksum-verify the bounded 12-event Myanmar GFD archive set outside the deployed project for offline label-preparation assessment.
+- [x] Inspect the native raster metadata and Myanmar partition overlap for the acquired historical events before constructing any regional label table.
+- [x] Compute a true-Admin-1, event-level historical flood-coverage summary from the acquired GFD source rasters without producing nationwide model probabilities or alerts.
+- [x] Aggregate historical Admin 1 source coverage into evidence-readiness categories without treating observed event frequency as a flood forecast.
+- [x] Expose the non-predictive Admin 1 historical-source readiness summary through the nationwide coverage interface with wording that prevents interpretation as flood risk or forecast output.
+- [x] Add endpoint-level regression coverage for the public nationwide evidence-readiness response, including its explicit non-predictive interpretation.
+- [x] Run the complete regression suite and production build after nationwide evidence-readiness changes, then re-verify the coverage panel loads the summary through the normal spatial-service lifecycle.
 - [ ] Add country-scale map filters, progressive loading, and explicit regional data-coverage disclosures.
 - [ ] Verify, publish, synchronize GitHub, and report nationwide expansion timing, readiness, and safety limits.
 - [ ] Deliver a user-facing nationwide expansion report covering workload, implementation status, validation evidence, and remaining blockers.
