@@ -176,3 +176,5 @@ The earlier EWDS items remain intentionally open until the user completes the se
 - [x] Validate and deliver the reference-style Maubin flow infographic without changing application behavior.
 - [x] Redesign the infographic as a public-only DeltaWatch flow with no Admin / Operator section, no login step, and no Maubin naming.
 - [x] Validate and deliver the revised public login-free infographic without changing application behavior.
+- [x] Create a formal reference-style technical flowchart that shows public login-free and automated-system paths only, with no admin or sign-in content.
+- [x] Validate and deliver the public-only technical flowchart without changing application behavior.
