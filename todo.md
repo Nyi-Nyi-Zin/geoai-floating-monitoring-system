@@ -134,16 +134,16 @@
 - [x] Implement only a bounded, provenance-preserving nationwide upstream-flow readiness acquisition that cannot create model scores, predictions, or alerts.
 - [x] Extend nationwide evidence-readiness disclosures with upstream-flow and prospective-validation availability states while preserving the no-fit gate.
 - [x] Verify, publish, synchronize GitHub, and report the resulting nationwide monitoring readiness update.
-- [ ] Validate official EWDS GloFAS dataset acceptance, credential compatibility, and a minimal issue-time forecast retrieval contract without creating predictive outputs.
-- [ ] If authenticated access succeeds, run a bounded official GloFAS forecast-run provenance and latency audit for one documented Myanmar representative point; otherwise document the access blocker and retain the no-fit gate.
-- [ ] Update nationwide readiness disclosures only with verified official-retrieval findings, then test, publish, synchronize GitHub, and report the outcome.
+- [x] Validate official EWDS GloFAS dataset acceptance, credential compatibility, and a minimal issue-time forecast retrieval contract without creating predictive outputs; the sanitized result is a dataset-terms-not-accepted blocker.
+- [x] If authenticated access succeeds, run a bounded official GloFAS forecast-run provenance and latency audit for one documented Myanmar representative point; otherwise document the access blocker and retain the no-fit gate.
+- [x] Update nationwide readiness disclosures only with verified official-retrieval findings; the verified blocker is displayed without initiating a login, and the no-fit gate remains closed.
 
 ## Approved Non-Login Continuation
 
-- [ ] Document the EWDS GloFAS terms-acceptance blocker and the sanitized one-point probe result without requesting login.
-- [ ] Build a non-login nationwide source-quality readiness manifest covering freshness, provenance, spatial coverage, missingness, and feature authorization for existing inputs.
-- [ ] Add prospective field-evidence matching readiness states for unmatched, stale, insufficient, and verified evidence without fabricating observations.
-- [ ] Expose non-login readiness and EWDS-blocker status in the analyst-facing monitoring disclosures while preserving the public no-fit gate.
+- [x] Document the EWDS GloFAS terms-acceptance blocker and the sanitized one-point probe result without requesting login.
+- [x] Build a non-login nationwide source-quality readiness manifest covering freshness, provenance, spatial coverage, missingness, and feature authorization for existing inputs.
+- [x] Add prospective field-evidence matching readiness states for unmatched, stale, insufficient, and verified evidence without fabricating observations.
+- [x] Expose non-login readiness and EWDS-blocker status in the analyst-facing monitoring disclosures while preserving the public no-fit gate.
 - [ ] Verify, publish, synchronize GitHub, and report the approved non-login continuation update.
 
 The earlier EWDS items remain intentionally open until the user completes the separate account login and licence-acceptance action.

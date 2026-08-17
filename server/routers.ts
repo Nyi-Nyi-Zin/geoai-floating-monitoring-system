@@ -3,8 +3,8 @@ import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
-import { getObservationSummary, impactClasses, listMyObservations, listReviewQueue, reviewObservation, reviewStatuses, submitObservation } from "./fieldObservations";
-import { getLatestProspectiveMonitoring, getOperationalMonitoringStatus, getProspectiveFeatureProjection, getWeatherSnapshot, listStoredRainfall, monitoringStatus } from "./monitoring";
+import { classifyProspectiveEvidenceMatchingReadiness, getObservationSummary, impactClasses, listMyObservations, listReviewQueue, reviewObservation, reviewStatuses, submitObservation } from "./fieldObservations";
+import { getLatestProspectiveMonitoring, getOperationalMonitoringStatus, getProspectiveFeatureProjection, getProspectiveSnapshotCount, getWeatherSnapshot, listStoredRainfall, monitoringStatus } from "./monitoring";
 
 export const appRouter = router({
   system: systemRouter,
@@ -20,7 +20,18 @@ export const appRouter = router({
     prospectiveFeatures: publicProcedure.input(z.object({ issueKey: z.string().min(1), targetDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })).query(({ input }) => getProspectiveFeatureProjection(input.issueKey, input.targetDate)),
   }),
   observations: router({
-    summary: publicProcedure.query(() => getObservationSummary()),
+    summary: publicProcedure.query(async () => {
+      const [summary, prospectiveSnapshotCount] = await Promise.all([getObservationSummary(), getProspectiveSnapshotCount()]);
+      return {
+        ...summary,
+        prospectiveMatchingReadiness: classifyProspectiveEvidenceMatchingReadiness({
+          verifiedObservationCount: summary.verified,
+          prospectiveSnapshotCount,
+          matchedPairCount: 0,
+          latestVerifiedObservationAt: summary.latestVerifiedObservedAt ? new Date(summary.latestVerifiedObservedAt) : null,
+        }),
+      };
+    }),
     mine: protectedProcedure.query(({ ctx }) => listMyObservations(ctx.user.id)),
     submit: protectedProcedure.input(z.object({
       observedAt: z.coerce.date(),

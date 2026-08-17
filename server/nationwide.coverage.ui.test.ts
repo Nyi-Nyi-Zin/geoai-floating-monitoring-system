@@ -15,6 +15,10 @@ describe("nationwide coverage mode", () => {
     expect(source).toContain("No nationwide candidate fitted");
     expect(source).toContain("Upstream-flow readiness");
     expect(source).toContain("not a model feature");
+    expect(source).toContain("Official issue-time flow access");
+    expect(source).toContain("EWDS terms acceptance required");
+    expect(source).toContain("Non-login source quality");
+    expect(source).toContain("no candidate");
     expect(source).toContain("Prospective validation");
     expect(source).toContain("No verified nationwide outcomes yet");
     expect(source).toContain("not a forecast");
