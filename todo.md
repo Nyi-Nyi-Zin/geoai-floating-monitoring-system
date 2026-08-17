@@ -92,7 +92,14 @@
 - [x] Acquire and audit real ERA5-based daily rainfall history for the 18 Admin 1 source centroids before constructing any nationwide temporal feature table.
 - [x] Construct and audit a leakage-safe Admin 1 event-level rainfall-lag table that ends before each GFD event begins and remains a non-predictive preparation artifact.
 - [x] Evaluate rainfall-only regional temporal baselines against the frozen protocol, retaining only documented rejection or non-promotion outcomes and producing no nationwide prediction output.
-- [ ] Acquire and audit nationwide static terrain, land-cover, and waterways features before attempting any region-aware predictive candidate beyond the rejected rainfall-only baseline.
+- [x] Acquire and audit nationwide static terrain, land-cover, and waterways features before attempting any region-aware predictive candidate beyond the rejected rainfall-only baseline.
+- [x] Verify bounded, reproducible acquisition paths for nationwide terrain, land-cover, and river-network aggregates at the Admin 1 level before downloading high-volume static geospatial sources.
+- [x] Download the documented HydroRIVERS Asia source and aggregate true-polygon river-network descriptors by Myanmar Admin 1 without generating flood-risk outputs.
+- [x] Derive provenance-preserving Admin 1 terrain summaries from bounded Copernicus DEM GLO-30 remote COG overview reads without retaining full rasters or creating flood-risk outputs.
+- [x] Derive provenance-preserving Admin 1 dominant land-cover context from bounded ESA WorldCover 2021 v200 remote COG overview reads without retaining full rasters or creating flood-risk outputs.
+- [x] Join event issue-time rainfall lags, observed Admin 1 labels, and versioned static descriptors into an auditable regional analysis table without fitting a model or creating risk outputs.
+- [x] Audit the frozen nationwide candidate-promotion gates against the joined source contract, recording an explicit no-fit outcome if any mandatory issue-time source or regional evidence prerequisite is missing.
+- [x] Surface the audited nationwide static-context and no-fit candidate-gate state through the evidence-readiness endpoint and coverage panel without adding predictive output.
 - [x] Build a reproducible Myanmar historical-flood event catalog from documented GFD/DFO metadata before downloading or labeling nationwide model-training events.
 - [x] Audit the public archive sizes and geographic label-processing implications for the selected Myanmar GFD events before downloading any nationwide flood rasters.
 - [x] Derive an Admin 1 partition manifest with real source P-codes and bounding boxes to support bounded regional label and feature-processing batches without creating predictions.

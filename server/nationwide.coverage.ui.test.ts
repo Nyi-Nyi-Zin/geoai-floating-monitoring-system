@@ -11,6 +11,8 @@ describe("nationwide coverage mode", () => {
     expect(source).toContain("historical source coverage only");
     expect(source).toContain("Flood prediction, probability, and regional accuracy are not yet assessed.");
     expect(source).toContain("Historical source evidence");
+    expect(source).toContain("Static context & candidate gate");
+    expect(source).toContain("No nationwide candidate fitted");
     expect(source).toContain("not a forecast");
   });
 });

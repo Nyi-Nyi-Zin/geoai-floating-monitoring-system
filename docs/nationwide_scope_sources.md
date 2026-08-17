@@ -43,6 +43,41 @@ Source URL: https://esa-worldcover.org/en/data-access
 
 ESA WorldCover is a global 10 m land-cover product for 2020 and 2021 based on Sentinel-1 and Sentinel-2 data. The official access documentation states that the annual composites use different algorithm versions in 2020 and 2021, provides Cloud-Optimized GeoTIFF tiles in 1° by 1° WGS84 grid cells, and makes the products available free of charge under CC BY 4.0. It is suitable as a static historical baseline after tile-level provenance and resampling are documented, but it is not an operational land-use update feed or direct flood label.
 
+## HydroRIVERS Admin 1 static aggregation (verified)
+
+The documented 91 MB HydroRIVERS Asia version 1 shapefile archive was downloaded from the official HydroSHEDS delivery endpoint and inspected before use. Its source layer contains 1,428,959 Asia reaches and retains source reach length, catchment area, estimated long-term average discharge, and Strahler stream-order attributes. The archived download and expanded source remain outside the deployed web project under `/home/ubuntu/nationwide-data/hydrorivers/`.
+
+Each Myanmar Admin 1 source polygon was intersected with candidate river-reach geometry, and geodesic lengths were calculated only for the clipped portions of those reaches. The resulting, reproducible output is `/home/ubuntu/deltawatch-model-outputs/myanmar_admin1_hydrorivers_static.json`. It contains 18 regional static summaries, with no zero-reach regions, and a countrywide total of 248,300.802 km of clipped HydroRIVERS linework. The apparently high total reflects the source's broad, static network coverage and its inclusion threshold; it is not a measurement of navigable channel length or drainage capacity.
+
+The regional descriptors are **intersecting reach count**, **clipped river length**, **longest clipped reach**, **maximum Strahler order**, and **length-weighted mean source discharge estimate**. They are retained as static geographical context only. The process did not fit a model, create a risk score or probability, generate a forecast, or issue an alert. HydroRIVERS does not provide current river stage, observed flood extent, local drainage capacity, levee condition, or small-channel completeness; those limits remain binding for nationwide monitoring.
+
+## Copernicus DEM Admin 1 static aggregation (verified)
+
+The Copernicus DEM GLO-30 Public 2021 release provides public Cloud-Optimized GeoTIFF assets in one-degree EPSG:4326 tiles. A direct remote-COG diagnostic confirmed a 3,600 by 3,600 source tile and its orthometric-height data description. The extractor then identified tiles from the real Admin 1 envelope, streamed only 100 by 100 average-resampled overviews, and assigned overview-cell centres to true Admin 1 polygons. It does not retain raster assets in the web project.
+
+The resulting output is `/home/ubuntu/deltawatch-model-outputs/myanmar_admin1_copernicus_dem_static.json`. It provides all 18 regions with between 6,089 and 83,224 static overview samples and records the full tile audit. It attempted 127 intersecting-envelope public COGs, read 118 successfully, and retained nine unavailable COG URLs explicitly rather than substituting values. Every region still received terrain samples; mean elevation ranged from 16.122 m to 1,039.866 m and the regional P90–P10 relief range was 43.385 m to 2,387.847 m.
+
+The terrain fields are static **mean**, **median**, **P10**, **P90**, **minimum**, and **maximum** elevation, plus P90–P10 regional relief. This is a coarse overview aggregation, not a full-resolution terrain, hydraulic, drainage, or bare-earth survey. Copernicus describes GLO-30 as a digital surface model, so buildings and vegetation can affect values. The output does not provide current flood extent, rainfall, river stage, probability, forecast, risk score, or alert.
+
+Source URLs:
+
+- https://registry.opendata.aws/copernicus-dem/
+- https://copernicus-dem-30m-stac.s3.eu-central-1.amazonaws.com/
+
+## ESA WorldCover Admin 1 static aggregation (verified)
+
+The official ESA WorldCover repository documents the 2021 v200 map bucket and its country/bounding-box downloader. The official tile-grid GeoJSON was retrieved and used to select only 19 true-grid tiles intersecting Myanmar. Each public v200 map COG was streamed as a 120 by 120 **categorical mode-resampled** overview and its sample-cell centres were assigned to true Admin 1 polygons. The source COGs are not retained in the web project.
+
+The resulting output is `/home/ubuntu/deltawatch-model-outputs/myanmar_admin1_worldcover_static.json`. All 19 selected COGs were available, each of the 18 regions received static overview samples, and per-region sample counts ranged from 974 to 13,305. The output retains counts and shares for all documented WorldCover classes, as well as the dominant class and its share. Dominant class share spans 0.426617 to 0.979006 across regions; a dominant static class is not a land-use update, impact assessment, or flood label.
+
+WorldCover 2021 v200 is a 10 m static land-cover source under CC BY 4.0. The extracted regional context does not provide rainfall, river stage, current flood extent, flood probability, forecast, risk score, or alert. No model was fitted in any static-source extraction stage.
+
+Source URLs:
+
+- https://github.com/ESA-WorldCover/esa-worldcover-datasets
+- https://esa-worldcover.org/en/data-access
+- https://doi.org/10.5281/zenodo.7254221
+
 ## Global Flood Database metadata for nationwide validation planning
 
 The public Cloud to Street Global Flood Database repository documents its quality-control metadata file at `data/gfd_qcdatabase_2019_08_01.csv`, the Dartmouth Flood Observatory polygons used in its analyses, and a Google Cloud Storage bucket containing the flood GeoTIFF archives. The quality-control file was downloaded and used only to build a metadata catalog; archive downloads, raster labels, model scores, probabilities, and alerts were deliberately excluded from this stage.
