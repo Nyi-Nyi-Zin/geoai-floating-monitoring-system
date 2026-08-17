@@ -87,7 +87,7 @@
 - [x] Quantify nationwide cell count, storage, API payload, map-rendering, and six-hour compute implications relative to the 5,549-cell Maubin prototype.
 - [x] Inventory available nationwide rainfall, terrain, land-cover, waterways, discharge proxies, flood labels, and local validation coverage without fabricating missing evidence.
 - [x] Design a phased country-scale architecture that can reuse Maubin feature engineering while avoiding a single oversized map payload.
-- [ ] Evaluate region-aware model transfer and chronological validation before showing any nationwide risk output.
+- [x] Evaluate region-aware model transfer and chronological validation before showing any nationwide risk output; the frozen gate audit recorded no fit because mandatory upstream-flow provenance and prospective validation are absent.
 - [x] Define and freeze a leakage-safe nationwide chronological event-split protocol before constructing features or fitting any regional model candidate.
 - [x] Acquire and audit real ERA5-based daily rainfall history for the 18 Admin 1 source centroids before constructing any nationwide temporal feature table.
 - [x] Construct and audit a leakage-safe Admin 1 event-level rainfall-lag table that ends before each GFD event begins and remains a non-predictive preparation artifact.
@@ -110,7 +110,7 @@
 - [x] Expose the non-predictive Admin 1 historical-source readiness summary through the nationwide coverage interface with wording that prevents interpretation as flood risk or forecast output.
 - [x] Add endpoint-level regression coverage for the public nationwide evidence-readiness response, including its explicit non-predictive interpretation.
 - [x] Run the complete regression suite and production build after nationwide evidence-readiness changes, then re-verify the coverage panel loads the summary through the normal spatial-service lifecycle.
-- [ ] Add country-scale map filters, progressive loading, and explicit regional data-coverage disclosures.
+- [x] Add country-scale map filters, progressive loading, and explicit regional data-coverage disclosures.
 - [ ] Verify, publish, synchronize GitHub, and report nationwide expansion timing, readiness, and safety limits.
 - [ ] Deliver a user-facing nationwide expansion report covering workload, implementation status, validation evidence, and remaining blockers.
 
@@ -126,6 +126,6 @@
 - [x] Add a nationwide coverage mode that loads the real Admin 1 index only on demand and labels every region as not yet assessed rather than implying a flood prediction.
 - [x] Fix the nationwide coverage loader lifecycle so a successful Admin 1 response is not discarded during its own loading-state rerender.
 - [x] Generate and serve a separately simplified Admin 1 display geometry so the country-scale map avoids shipping the full 4.9 MB source boundary payload on demand.
-- [ ] Reduce the client build’s existing >500 kB JavaScript chunk before expanding country-scale interaction beyond the lightweight Admin 1 coverage index.
+- [x] Reduce the client build’s existing >500 kB JavaScript chunk before expanding country-scale interaction beyond the lightweight Admin 1 coverage index.
 - [x] Inspect and document a nationwide land-cover source and a nationwide waterways source, including provenance, coverage, access status, and operational limitations.
 - [x] Update the nationwide scope assessment with explicit verified land-cover and waterways inventory rows before closing data-inventory feasibility.
