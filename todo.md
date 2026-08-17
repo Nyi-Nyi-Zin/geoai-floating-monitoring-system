@@ -166,3 +166,11 @@ The earlier EWDS items remain intentionally open until the user completes the se
 - [x] Remove public login requirements while retaining privacy-preserving submission identifiers, throttling, immutable reviews, and protected administrative decisions.
 - [x] Add regression coverage for anonymous public access and retained evidence-governance safeguards.
 - [x] Verify, publish, synchronize GitHub, and report the login-free DeltaWatch access update.
+
+## Maubin Flow Diagram
+
+- [x] Inspect only the protected `feat/maubin` implementation and its operational documentation to define the deployed monitoring flow.
+- [x] Create and render a three-column Maubin flow diagram covering public user, core system, and operator pathways without adding unsupported alert or prediction steps.
+- [x] Validate and deliver the diagram artifact without changing Maubin or Myanmar application behavior.
+- [x] Redesign the Maubin flow as a reference-style infographic with numbered cards, blue/green side panels, a central system card, and clear operational arrows.
+- [x] Validate and deliver the reference-style Maubin flow infographic without changing application behavior.
