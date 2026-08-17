@@ -192,3 +192,9 @@ The earlier EWDS items remain intentionally open until the user completes the se
 - [x] Validate and deliver the class-diagram artifact without changing application behavior.
 - [x] Re-render the class diagram as a crisp high-resolution PNG and a scalable SVG without altering the diagram structure.
 - [x] Validate and deliver the non-blurry class-diagram artifacts without changing application behavior.
+
+## DeltaWatch Use Case Diagram
+
+- [x] Define the actual public login-free, automated monitoring, and monitoring-only safety use cases from the current implementation.
+- [x] Create and render a structured DeltaWatch use case diagram in the original standard PNG rendering style.
+- [x] Validate and deliver the use case diagram without changing application behavior.
