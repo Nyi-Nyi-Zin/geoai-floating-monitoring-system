@@ -198,3 +198,9 @@ The earlier EWDS items remain intentionally open until the user completes the se
 - [x] Define the actual public login-free, automated monitoring, and monitoring-only safety use cases from the current implementation.
 - [x] Create and render a structured DeltaWatch use case diagram in the original standard PNG rendering style.
 - [x] Validate and deliver the use case diagram without changing application behavior.
+
+## DeltaWatch Sequence Diagram
+
+- [x] Define the actual dashboard, anonymous-evidence, spatial-data, and scheduled-refresh request sequences from the current implementation.
+- [x] Create and render a structured DeltaWatch sequence diagram in the original standard PNG rendering style.
+- [x] Validate and deliver the sequence diagram without changing application behavior.
