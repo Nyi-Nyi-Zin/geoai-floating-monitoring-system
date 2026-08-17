@@ -178,3 +178,9 @@ The earlier EWDS items remain intentionally open until the user completes the se
 - [x] Validate and deliver the revised public login-free infographic without changing application behavior.
 - [x] Create a formal reference-style technical flowchart that shows public login-free and automated-system paths only, with no admin or sign-in content.
 - [x] Validate and deliver the public-only technical flowchart without changing application behavior.
+
+## DeltaWatch Entity Relationship Diagram
+
+- [x] Inspect the current DeltaWatch database schema and document actual relationship semantics without inventing foreign-key constraints.
+- [x] Create and render a structured ERD for the operational user, rainfall, schedule, prospective-snapshot, and field-observation entities.
+- [x] Validate and deliver the ERD artifact without changing application behavior.
