@@ -88,6 +88,11 @@
 - [x] Inventory available nationwide rainfall, terrain, land-cover, waterways, discharge proxies, flood labels, and local validation coverage without fabricating missing evidence.
 - [x] Design a phased country-scale architecture that can reuse Maubin feature engineering while avoiding a single oversized map payload.
 - [ ] Evaluate region-aware model transfer and chronological validation before showing any nationwide risk output.
+- [x] Define and freeze a leakage-safe nationwide chronological event-split protocol before constructing features or fitting any regional model candidate.
+- [x] Acquire and audit real ERA5-based daily rainfall history for the 18 Admin 1 source centroids before constructing any nationwide temporal feature table.
+- [x] Construct and audit a leakage-safe Admin 1 event-level rainfall-lag table that ends before each GFD event begins and remains a non-predictive preparation artifact.
+- [x] Evaluate rainfall-only regional temporal baselines against the frozen protocol, retaining only documented rejection or non-promotion outcomes and producing no nationwide prediction output.
+- [ ] Acquire and audit nationwide static terrain, land-cover, and waterways features before attempting any region-aware predictive candidate beyond the rejected rainfall-only baseline.
 - [x] Build a reproducible Myanmar historical-flood event catalog from documented GFD/DFO metadata before downloading or labeling nationwide model-training events.
 - [x] Audit the public archive sizes and geographic label-processing implications for the selected Myanmar GFD events before downloading any nationwide flood rasters.
 - [x] Derive an Admin 1 partition manifest with real source P-codes and bounding boxes to support bounded regional label and feature-processing batches without creating predictions.
