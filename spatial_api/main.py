@@ -14,7 +14,7 @@ RAINFALL_SEED_PATH = "/manus-storage/maubin_rainfall_seed_b7223d86.json"
 MYANMAR_ADMIN_SEED_PATH = "/manus-storage/myanmar_admin_seed_v1_ff8b1711.json"
 MYANMAR_ADMIN_DISPLAY_PATH = "/manus-storage/myanmar_admin1_display_v1_bbe6a3f3.json"
 MYANMAR_ADMIN_PARTITIONS_PATH = "/manus-storage/myanmar_admin1_partitions_v1_a330f15d.json"
-MYANMAR_ADMIN_EVIDENCE_READINESS_PATH = "/manus-storage/myanmar_admin1_evidence_readiness_v4_89825bf9.json"
+MYANMAR_ADMIN_EVIDENCE_READINESS_PATH = "/manus-storage/myanmar_admin1_evidence_readiness_v4_f1af72ae.json"
 MAUBIN_LOCAL_WATER_EVIDENCE_READINESS_PATH = "/manus-storage/maubin_local_water_evidence_readiness_v1_90927ebf.json"
 
 
