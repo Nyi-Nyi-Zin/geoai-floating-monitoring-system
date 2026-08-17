@@ -82,3 +82,21 @@
 - [x] Commit and synchronize the production-readiness release to the configured GitHub branch, then verify remote alignment.
 - [x] Deliver the released production-readiness summary and unresolved monitoring-only safety limits.
 - [x] Deliver a user-facing production-readiness release summary covering the deployed URL, checkpoint version, GitHub branch commit, key improvements, validation results, and remaining monitoring-only limits.
+
+- [ ] Define the nationwide Myanmar monitoring boundary, spatial resolution, administrative-region hierarchy, and preserved monitoring-only safety policy.
+- [ ] Quantify nationwide cell count, storage, API payload, map-rendering, and six-hour compute implications relative to the 5,549-cell Maubin prototype.
+- [ ] Inventory available nationwide rainfall, terrain, land-cover, waterways, discharge proxies, flood labels, and local validation coverage without fabricating missing evidence.
+- [ ] Design a phased country-scale architecture that can reuse Maubin feature engineering while avoiding a single oversized map payload.
+- [ ] Evaluate region-aware model transfer and chronological validation before showing any nationwide risk output.
+- [ ] Add country-scale map filters, progressive loading, and explicit regional data-coverage disclosures.
+- [ ] Verify, publish, synchronize GitHub, and report nationwide expansion timing, readiness, and safety limits.
+- [ ] Deliver a user-facing nationwide expansion report covering workload, implementation status, validation evidence, and remaining blockers.
+
+## Nationwide Expansion Workstream
+
+- [ ] Inspect the current Maubin spatial seed dimensions and feature schema as the baseline for nationwide sizing.
+- [ ] Estimate nationwide processing and storage from real source-grid or administrative-boundary data rather than simulated cells.
+- [ ] Record a nationwide scope decision and phased rollout recommendation before implementing country-scale prediction outputs.
+- [ ] Preserve Monitoring only status until nationwide regional validation and local evidence support any broader operational claim.
+- [x] Push the completed Maubin production-readiness commit to GitHub branch `feat/maubin` and verify the remote SHA.
+- [ ] Create GitHub branch `feat/myanmar` from the verified Maubin baseline, check it out locally, and verify branch isolation before nationwide edits.
