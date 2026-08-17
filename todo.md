@@ -159,3 +159,10 @@ The earlier EWDS items remain intentionally open until the user completes the se
 - [x] Implement bounded ingestion only for a verified accessible local-water source; otherwise persist a documented no-source readiness decision without fabricating data.
 - [x] Surface Maubin river-stage and tide evidence readiness in monitoring disclosures without enabling a model score, prediction, probability, forecast, or alert.
 - [x] Verify, publish, synchronize GitHub, and report the Maubin local-water evidence update.
+
+## Public Access Without Login
+
+- [x] Audit all authentication-gated dashboard, field-evidence, and administration paths and define a safe public-access boundary.
+- [x] Remove public login requirements while retaining privacy-preserving submission identifiers, throttling, immutable reviews, and protected administrative decisions.
+- [x] Add regression coverage for anonymous public access and retained evidence-governance safeguards.
+- [ ] Verify, publish, synchronize GitHub, and report the login-free DeltaWatch access update.
