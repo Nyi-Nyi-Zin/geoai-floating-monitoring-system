@@ -144,8 +144,8 @@
 - [x] Build a non-login nationwide source-quality readiness manifest covering freshness, provenance, spatial coverage, missingness, and feature authorization for existing inputs.
 - [x] Add prospective field-evidence matching readiness states for unmatched, stale, insufficient, and verified evidence without fabricating observations.
 - [x] Expose non-login readiness and EWDS-blocker status in the analyst-facing monitoring disclosures while preserving the public no-fit gate.
-- [ ] Verify, publish, synchronize GitHub, and report the approved non-login continuation update.
-- [ ] Correct the production managed-storage reference for the v4 nationwide evidence-readiness seed and re-verify the public contract.
+- [x] Verify, publish, synchronize GitHub, and report the approved non-login continuation update.
+- [x] Correct the production managed-storage reference for the v4 nationwide evidence-readiness seed and re-verify the public contract.
 
 The earlier EWDS items remain intentionally open until the user completes the separate account login and licence-acceptance action.
 
