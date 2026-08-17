@@ -134,3 +134,6 @@
 - [x] Implement only a bounded, provenance-preserving nationwide upstream-flow readiness acquisition that cannot create model scores, predictions, or alerts.
 - [x] Extend nationwide evidence-readiness disclosures with upstream-flow and prospective-validation availability states while preserving the no-fit gate.
 - [x] Verify, publish, synchronize GitHub, and report the resulting nationwide monitoring readiness update.
+- [ ] Validate official EWDS GloFAS dataset acceptance, credential compatibility, and a minimal issue-time forecast retrieval contract without creating predictive outputs.
+- [ ] If authenticated access succeeds, run a bounded official GloFAS forecast-run provenance and latency audit for one documented Myanmar representative point; otherwise document the access blocker and retain the no-fit gate.
+- [ ] Update nationwide readiness disclosures only with verified official-retrieval findings, then test, publish, synchronize GitHub, and report the outcome.
