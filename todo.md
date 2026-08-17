@@ -111,8 +111,8 @@
 - [x] Add endpoint-level regression coverage for the public nationwide evidence-readiness response, including its explicit non-predictive interpretation.
 - [x] Run the complete regression suite and production build after nationwide evidence-readiness changes, then re-verify the coverage panel loads the summary through the normal spatial-service lifecycle.
 - [x] Add country-scale map filters, progressive loading, and explicit regional data-coverage disclosures.
-- [ ] Verify, publish, synchronize GitHub, and report nationwide expansion timing, readiness, and safety limits.
-- [ ] Deliver a user-facing nationwide expansion report covering workload, implementation status, validation evidence, and remaining blockers.
+- [x] Verify, publish, synchronize GitHub, and report nationwide expansion timing, readiness, and safety limits.
+- [x] Deliver a user-facing nationwide expansion report covering workload, implementation status, validation evidence, and remaining blockers.
 
 ## Nationwide Expansion Workstream
 
