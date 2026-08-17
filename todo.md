@@ -129,3 +129,4 @@
 - [x] Reduce the client build’s existing >500 kB JavaScript chunk before expanding country-scale interaction beyond the lightweight Admin 1 coverage index.
 - [x] Inspect and document a nationwide land-cover source and a nationwide waterways source, including provenance, coverage, access status, and operational limitations.
 - [x] Update the nationwide scope assessment with explicit verified land-cover and waterways inventory rows before closing data-inventory feasibility.
+- [ ] Diagnose and fix the reported production blank-screen rendering failure on the deployed DeltaWatch dashboard.
