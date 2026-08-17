@@ -36,6 +36,12 @@ The storage estimates use actual Maubin managed-seed sizes and the 5,549-cell ba
 | Historical flood labels | Global Flood Database v1 | Country-filterable historical flood-event maps, permanent-water masking, and event-level temporal records.[7] | Coverage is 2000–2018, event selection is not a complete census of every flood, and its licence is CC BY-NC 4.0.[7] |
 | Rainfall antecedents | ERA5 / ERA5T | Nationwide precipitation-lag and wetness features using a consistent meteorological source | Reanalysis is not a local gauge; ingest must be tiled and source latency recorded. |
 | River and wetness proxy | GloFAS historical / forecast products | Global daily river discharge, soil-wetness index, runoff, upstream area, and elevation proxies.[8] | GloFAS forecasts focus on rivers and do not provide real-time flash-flood, coastal-flood, or inundation-area forecasts.[9] |
+
+### Historical-label sizing and bounded batch topology
+
+The public GFD quality-control catalog yielded **12 Myanmar/Burma-tagged historical records** under the documented source-metadata selection rule. Their matching `gfd_v1_4` archive metadata totals **175.70 MB** across 12 ZIP archives; the largest single archive is **25.19 MB**. No archive bytes or labels were downloaded in this sizing step. This volume is practical for an offline, resumable data-preparation run but does **not** make a country-wide 500 m all-cell event table practical inside a single autoscale request.
+
+To keep future processing bounded, the vetted OCHA/MIMU Admin 1 source geometry was reduced to a compact **18-partition** manifest. Each partition retains the original Admin 1 P-code, English and Myanmar name, source center, geographic bounding box, reported source area, and source validity date. The public endpoint exposes the manifest only; it contains no features, labels, scores, probabilities, or predictions. Any later archive extraction must apply event geometry and feature construction inside these Admin 1 partitions with explicit temporal holdouts.
 | Local outcome evidence | Field observations and local gauges | Future regional calibration and local reliability checks | Present verified nationwide coverage is absent; no accuracy claim may be generalized without it. |
 
 ## Recommended architecture

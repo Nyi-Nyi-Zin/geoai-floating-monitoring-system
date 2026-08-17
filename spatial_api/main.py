@@ -13,6 +13,7 @@ HINDCAST_SEED_PATH = "/manus-storage/maubin_hindcast_seed_v7_e80e6338.json"
 RAINFALL_SEED_PATH = "/manus-storage/maubin_rainfall_seed_b7223d86.json"
 MYANMAR_ADMIN_SEED_PATH = "/manus-storage/myanmar_admin_seed_v1_ff8b1711.json"
 MYANMAR_ADMIN_DISPLAY_PATH = "/manus-storage/myanmar_admin1_display_v1_bbe6a3f3.json"
+MYANMAR_ADMIN_PARTITIONS_PATH = "/manus-storage/myanmar_admin1_partitions_v1_a330f15d.json"
 
 
 def load_json(path: str) -> dict:
@@ -43,6 +44,11 @@ def myanmar_admin_seed() -> dict:
 @lru_cache(maxsize=1)
 def myanmar_admin_display_seed() -> dict:
     return load_json(MYANMAR_ADMIN_DISPLAY_PATH)
+
+
+@lru_cache(maxsize=1)
+def myanmar_admin_partition_seed() -> dict:
+    return load_json(MYANMAR_ADMIN_PARTITIONS_PATH)
 
 
 def feature_type(feature: dict) -> str:
@@ -140,3 +146,14 @@ def national_admin_boundary() -> dict:
 @app.get("/national-admin/regions")
 def national_admin_regions() -> dict:
     return myanmar_admin_display_seed().get("admin1", {"type": "FeatureCollection", "features": []})
+
+
+@app.get("/national-admin/partitions")
+def national_admin_partitions() -> dict:
+    seed = myanmar_admin_partition_seed()
+    return {
+        "schema": seed.get("schema"),
+        "source": seed.get("source"),
+        "status": seed.get("status"),
+        "partitions": seed.get("partitions", []),
+    }

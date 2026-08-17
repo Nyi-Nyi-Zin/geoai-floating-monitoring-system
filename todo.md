@@ -88,6 +88,9 @@
 - [x] Inventory available nationwide rainfall, terrain, land-cover, waterways, discharge proxies, flood labels, and local validation coverage without fabricating missing evidence.
 - [x] Design a phased country-scale architecture that can reuse Maubin feature engineering while avoiding a single oversized map payload.
 - [ ] Evaluate region-aware model transfer and chronological validation before showing any nationwide risk output.
+- [x] Build a reproducible Myanmar historical-flood event catalog from documented GFD/DFO metadata before downloading or labeling nationwide model-training events.
+- [x] Audit the public archive sizes and geographic label-processing implications for the selected Myanmar GFD events before downloading any nationwide flood rasters.
+- [x] Derive an Admin 1 partition manifest with real source P-codes and bounding boxes to support bounded regional label and feature-processing batches without creating predictions.
 - [ ] Add country-scale map filters, progressive loading, and explicit regional data-coverage disclosures.
 - [ ] Verify, publish, synchronize GitHub, and report nationwide expansion timing, readiness, and safety limits.
 - [ ] Deliver a user-facing nationwide expansion report covering workload, implementation status, validation evidence, and remaining blockers.

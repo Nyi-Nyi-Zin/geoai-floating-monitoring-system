@@ -42,3 +42,14 @@ The official ESA WorldCover data-access page exposes WorldCover 2020 v100 and Wo
 Source URL: https://esa-worldcover.org/en/data-access
 
 ESA WorldCover is a global 10 m land-cover product for 2020 and 2021 based on Sentinel-1 and Sentinel-2 data. The official access documentation states that the annual composites use different algorithm versions in 2020 and 2021, provides Cloud-Optimized GeoTIFF tiles in 1° by 1° WGS84 grid cells, and makes the products available free of charge under CC BY 4.0. It is suitable as a static historical baseline after tile-level provenance and resampling are documented, but it is not an operational land-use update feed or direct flood label.
+
+## Global Flood Database metadata for nationwide validation planning
+
+The public Cloud to Street Global Flood Database repository documents its quality-control metadata file at `data/gfd_qcdatabase_2019_08_01.csv`, the Dartmouth Flood Observatory polygons used in its analyses, and a Google Cloud Storage bucket containing the flood GeoTIFF archives. The quality-control file was downloaded and used only to build a metadata catalog; archive downloads, raster labels, model scores, probabilities, and alerts were deliberately excluded from this stage.
+
+The resulting reproducible Myanmar catalog selected records where the source country was `Myanmar` or `Burma`, or the GLIDE identifier ended with `-MMR`. It produced 12 historical records: 2041, 2276, 2859, 3068, 3125, 3169, 3302, 3662, 4283, 4365, 4632, and 4666. This is a source-metadata selection, not a complete census of Myanmar floods and not a validation result. Cross-border geometries and source coverage must be assessed before any later regional training or temporal evaluation.
+
+Sources:
+
+- https://github.com/cloudtostreet/MODIS_GlobalFloodDatabase
+- https://www.hydroshare.org/resource/6461528501c14f7c9d6b10d20dd4f657/

@@ -5,6 +5,7 @@ const sourceDir = "/home/ubuntu/nationwide-data/mmr_admin_boundaries";
 const outputDir = "/home/ubuntu/webdev-static-assets";
 const outputPath = `${outputDir}/myanmar_admin_seed_v1.json`;
 const displayOutputPath = `${outputDir}/myanmar_admin1_display_v1.json`;
+const partitionOutputPath = `${outputDir}/myanmar_admin1_partitions_v1.json`;
 
 const [admin0Raw, admin1Raw] = await Promise.all([
   readFile(`${sourceDir}/mmr_admin0.geojson`, "utf8"),
@@ -13,6 +14,29 @@ const [admin0Raw, admin1Raw] = await Promise.all([
 
 const admin0 = JSON.parse(admin0Raw);
 const admin1 = JSON.parse(admin1Raw);
+
+function collectCoordinates(value, coordinates = []) {
+  if (!Array.isArray(value)) return coordinates;
+  if (typeof value[0] === "number" && typeof value[1] === "number") {
+    coordinates.push(value);
+    return coordinates;
+  }
+  for (const child of value) collectCoordinates(child, coordinates);
+  return coordinates;
+}
+
+function boundsForGeometry(geometry) {
+  const coordinates = collectCoordinates(geometry?.coordinates);
+  if (!coordinates.length) throw new Error("Admin 1 geometry contains no coordinates");
+  const longitudes = coordinates.map(([longitude]) => longitude);
+  const latitudes = coordinates.map(([, latitude]) => latitude);
+  return {
+    west: Math.min(...longitudes),
+    south: Math.min(...latitudes),
+    east: Math.max(...longitudes),
+    north: Math.max(...latitudes),
+  };
+}
 
 if (admin0.type !== "FeatureCollection" || admin0.features.length !== 1) throw new Error("Expected exactly one Myanmar Admin 0 feature");
 if (admin1.type !== "FeatureCollection" || admin1.features.length !== 18) throw new Error("Expected 18 Myanmar Admin 1 features");
@@ -50,5 +74,21 @@ const displaySeed = {
   admin1: admin1Display,
 };
 await writeFile(displayOutputPath, `${JSON.stringify(displaySeed)}\n`, "utf8");
-const [sourceBytes, displayBytes] = await Promise.all([readFile(outputPath), readFile(displayOutputPath)]);
-console.log(JSON.stringify({ outputPath, displayOutputPath, admin0Features: admin0.features.length, admin1Features: admin1.features.length, validOn, sourceBytes: sourceBytes.length, displayBytes: displayBytes.length }, null, 2));
+const partitionSeed = {
+  schema: "deltawatch-myanmar-admin1-partitions-v1",
+  generated_at: seed.generated_at,
+  source: { ...seed.source, partition_role: "bounded_regional_processing_manifest" },
+  status: "source_partitions_ready_no_nationwide_features_labels_scores_or_predictions",
+  partitions: admin1.features.map((feature) => ({
+    admin1_pcode: feature.properties.adm1_pcode,
+    admin1_name: feature.properties.adm1_name,
+    admin1_name_mm: feature.properties.adm1_name1,
+    source_center: { longitude: feature.properties.center_lon, latitude: feature.properties.center_lat },
+    bounds: boundsForGeometry(feature.geometry),
+    area_sqkm: feature.properties.area_sqkm,
+    valid_on: feature.properties.valid_on,
+  })),
+};
+await writeFile(partitionOutputPath, `${JSON.stringify(partitionSeed)}\n`, "utf8");
+const [sourceBytes, displayBytes, partitionBytes] = await Promise.all([readFile(outputPath), readFile(displayOutputPath), readFile(partitionOutputPath)]);
+console.log(JSON.stringify({ outputPath, displayOutputPath, partitionOutputPath, admin0Features: admin0.features.length, admin1Features: admin1.features.length, validOn, sourceBytes: sourceBytes.length, displayBytes: displayBytes.length, partitionBytes: partitionBytes.length }, null, 2));
