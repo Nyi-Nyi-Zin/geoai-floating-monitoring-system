@@ -184,3 +184,9 @@ The earlier EWDS items remain intentionally open until the user completes the se
 - [x] Inspect the current DeltaWatch database schema and document actual relationship semantics without inventing foreign-key constraints.
 - [x] Create and render a structured ERD for the operational user, rainfall, schedule, prospective-snapshot, and field-observation entities.
 - [x] Validate and deliver the ERD artifact without changing application behavior.
+
+## DeltaWatch Class Diagram
+
+- [x] Inspect the current router, monitoring, evidence, spatial API, storage, and UI module structure without inventing classes that do not exist.
+- [x] Create and render a structured DeltaWatch class/module diagram with actual dependencies and public interfaces.
+- [x] Validate and deliver the class-diagram artifact without changing application behavior.
