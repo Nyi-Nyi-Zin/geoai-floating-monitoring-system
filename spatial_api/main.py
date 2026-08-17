@@ -15,6 +15,7 @@ MYANMAR_ADMIN_SEED_PATH = "/manus-storage/myanmar_admin_seed_v1_ff8b1711.json"
 MYANMAR_ADMIN_DISPLAY_PATH = "/manus-storage/myanmar_admin1_display_v1_bbe6a3f3.json"
 MYANMAR_ADMIN_PARTITIONS_PATH = "/manus-storage/myanmar_admin1_partitions_v1_a330f15d.json"
 MYANMAR_ADMIN_EVIDENCE_READINESS_PATH = "/manus-storage/myanmar_admin1_evidence_readiness_v3_4d6000e7.json"
+MAUBIN_LOCAL_WATER_EVIDENCE_READINESS_PATH = "/manus-storage/maubin_local_water_evidence_readiness_v1_90927ebf.json"
 
 
 def load_json(path: str) -> dict:
@@ -55,6 +56,11 @@ def myanmar_admin_partition_seed() -> dict:
 @lru_cache(maxsize=1)
 def myanmar_admin_evidence_readiness_seed() -> dict:
     return load_json(MYANMAR_ADMIN_EVIDENCE_READINESS_PATH)
+
+
+@lru_cache(maxsize=1)
+def maubin_local_water_evidence_readiness_seed() -> dict:
+    return load_json(MAUBIN_LOCAL_WATER_EVIDENCE_READINESS_PATH)
 
 
 def feature_type(feature: dict) -> str:
@@ -132,6 +138,20 @@ def hindcast(event_id: str) -> dict:
 @app.get("/rainfall-history")
 def rainfall_history() -> dict:
     return rainfall_seed()
+
+
+@app.get("/maubin/local-water-evidence-readiness")
+def maubin_local_water_evidence_readiness() -> dict:
+    seed = maubin_local_water_evidence_readiness_seed()
+    return {
+        "schema": seed.get("schema"),
+        "scope": seed.get("scope"),
+        "river_stage": seed.get("river_stage"),
+        "tide_and_coastal_water": seed.get("tide_and_coastal_water"),
+        "official_network_context": seed.get("official_network_context"),
+        "candidate_gate": seed.get("candidate_gate"),
+        "safety": seed.get("safety"),
+    }
 
 
 @app.get("/national-admin/metadata")

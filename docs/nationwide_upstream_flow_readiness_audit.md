@@ -30,3 +30,13 @@ An operational forecast feature is still blocked until the project demonstrates 
 [2] [Copernicus EMS — GloFAS Data and Services](https://global-flood.emergency.copernicus.eu/general-information/data-and-services/)
 
 [3] [Copernicus EMS — About GloFAS](https://global-flood.emergency.copernicus.eu/general-information/about-glofas/)
+
+## Non-login EWDS issue-time probe result
+
+On 17 August 2026 UTC, a smallest-bounded official request was tested against the EWDS dataset `cems-glofas-forecast` for one 24-hour control-forecast lead time over a small envelope around the MMR017 representative location. The request used the documented operational system, LISFLOOD hydrological model, river-discharge variable, GRIB2 output, ZIP download, and a sub-region area selection. The sanitized probe manifest is retained at `/home/ubuntu/deltawatch-model-outputs/myanmar_ewds_glofas_issue_time_probe.json`; no forecast file was downloaded.
+
+The official API response classified the request as `dataset_terms_not_accepted`. This is an access and authorization blocker, not evidence that the dataset is unavailable. The project does not bypass the licence workflow, store credentials, or request user login as part of the approved non-login continuation. Until the user separately accepts the CEMS-FLOODS dataset licence, official EWDS issue-time forecast-run lineage remains unavailable to this project.
+
+Accordingly, the existing bounded GloFAS-backed source-availability snapshot remains **readiness context only**. It is not an issue-time model feature, and no national candidate may be fitted, evaluated, promoted, or exposed as a risk output. This decision is consistent with the documented EWDS requirement that users accept dataset terms manually before downloading data.[4]
+
+[4] [CEMS Early Warning Data Store — CDSAPI setup and dataset terms](https://ewds.climate.copernicus.eu/how-to-api)

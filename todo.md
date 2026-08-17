@@ -137,3 +137,24 @@
 - [ ] Validate official EWDS GloFAS dataset acceptance, credential compatibility, and a minimal issue-time forecast retrieval contract without creating predictive outputs.
 - [ ] If authenticated access succeeds, run a bounded official GloFAS forecast-run provenance and latency audit for one documented Myanmar representative point; otherwise document the access blocker and retain the no-fit gate.
 - [ ] Update nationwide readiness disclosures only with verified official-retrieval findings, then test, publish, synchronize GitHub, and report the outcome.
+
+## Approved Non-Login Continuation
+
+- [ ] Document the EWDS GloFAS terms-acceptance blocker and the sanitized one-point probe result without requesting login.
+- [ ] Build a non-login nationwide source-quality readiness manifest covering freshness, provenance, spatial coverage, missingness, and feature authorization for existing inputs.
+- [ ] Add prospective field-evidence matching readiness states for unmatched, stale, insufficient, and verified evidence without fabricating observations.
+- [ ] Expose non-login readiness and EWDS-blocker status in the analyst-facing monitoring disclosures while preserving the public no-fit gate.
+- [ ] Verify, publish, synchronize GitHub, and report the approved non-login continuation update.
+
+The earlier EWDS items remain intentionally open until the user completes the separate account login and licence-acceptance action.
+
+## Branch Audit
+
+- [x] Audit protected `feat/maubin` branch state, completed features, production safeguards, and remaining work without changing its code.
+
+## Maubin Local Water Evidence
+
+- [x] Audit official and public Maubin/Nyaungdon river-stage and tide/coastal-water evidence sources, including access, temporal coverage, datum, and provenance constraints.
+- [x] Implement bounded ingestion only for a verified accessible local-water source; otherwise persist a documented no-source readiness decision without fabricating data.
+- [x] Surface Maubin river-stage and tide evidence readiness in monitoring disclosures without enabling a model score, prediction, probability, forecast, or alert.
+- [ ] Verify, publish, synchronize GitHub, and report the Maubin local-water evidence update.
