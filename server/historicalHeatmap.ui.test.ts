@@ -18,5 +18,10 @@ describe("Maubin historical-event HGB v7 heatmap", () => {
     expect(source).toContain("replay only — experimental HGB v7 output for the selected past event");
     expect(source).toContain("Not a current or future flood probability, forecast, or warning.");
     expect(source).toContain("terrainScreeningStyle(band, layers.gridCells, layers.floodRisk)");
+    expect(source).toContain("How to read the monitoring layers");
+    expect(source).toContain("Flood Risk</b> is static terrain screening");
+    expect(source).toContain("Historical HGB v7</b> is a selected past-event model replay");
+    expect(source).toContain("Prospective monitoring</b> logs incoming inputs for validation only");
+    expect(source).toContain("public alerts and probabilities are disabled");
   });
 });

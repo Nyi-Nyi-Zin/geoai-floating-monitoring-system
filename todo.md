@@ -114,3 +114,10 @@
 - [x] Add a separate Layer Control toggle and multi-band heatmap for the selected historical event, preserving the static terrain-screening layer.
 - [x] Add regression coverage and browser verification for toggle behavior, selected-event changes, experimental replay disclosure, and absence of current/future output.
 - [x] Publish, synchronize GitHub, and report the safe historical model heatmap enhancement.
+
+
+## Active Clarification Work
+
+- [x] Clarify the public distinction between static Flood Risk terrain screening, historical HGB v7 replay, and prospective monitoring.
+- [x] Add regression coverage for the distinction and no-current/future-probability safety language.
+- [x] Verify, publish, synchronize GitHub, and report the clarified behavior.
