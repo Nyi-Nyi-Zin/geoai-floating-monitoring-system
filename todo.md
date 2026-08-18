@@ -82,3 +82,10 @@
 - [x] Commit and synchronize the production-readiness release to the configured GitHub branch, then verify remote alignment.
 - [x] Deliver the released production-readiness summary and unresolved monitoring-only safety limits.
 - [x] Deliver a user-facing production-readiness release summary covering the deployed URL, checkpoint version, GitHub branch commit, key improvements, validation results, and remaining monitoring-only limits.
+
+## Maubin Login-Free Public Evidence Access
+
+- [x] Audit Maubin’s current authentication-gated evidence procedures, client redirects, and persistence boundary.
+- [x] Replace public evidence sign-in with a privacy-preserving browser-scoped contributor identity while retaining throttling and immutable protected review.
+- [x] Add regression coverage and visual verification for anonymous evidence submission, no public review decision, and monitoring-only disclosures.
+- [ ] Publish, synchronize GitHub, and report the verified login-free Maubin release.

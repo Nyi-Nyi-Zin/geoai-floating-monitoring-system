@@ -1,8 +1,9 @@
 import { COOKIE_NAME } from "@shared/const";
 import { z } from "zod";
+import { getAnonymousContributorId } from "./anonymousContributor";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { adminProcedure, protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { adminProcedure, publicProcedure, router } from "./_core/trpc";
 import { getObservationSummary, impactClasses, listMyObservations, listReviewQueue, reviewObservation, reviewStatuses, submitObservation } from "./fieldObservations";
 import { getLatestProspectiveMonitoring, getOperationalMonitoringStatus, getProspectiveFeatureProjection, getWeatherSnapshot, listStoredRainfall, monitoringStatus } from "./monitoring";
 
@@ -21,8 +22,8 @@ export const appRouter = router({
   }),
   observations: router({
     summary: publicProcedure.query(() => getObservationSummary()),
-    mine: protectedProcedure.query(({ ctx }) => listMyObservations(ctx.user.id)),
-    submit: protectedProcedure.input(z.object({
+    mine: publicProcedure.query(async ({ ctx }) => listMyObservations(await getAnonymousContributorId(ctx))),
+    submit: publicProcedure.input(z.object({
       observedAt: z.coerce.date(),
       latitude: z.number().min(16.0).max(17.5),
       longitude: z.number().min(95.0).max(96.5),
@@ -31,7 +32,7 @@ export const appRouter = router({
       waterDepthCm: z.number().min(0).max(2_000).nullable().optional(),
       notes: z.string().max(1_200).nullable().optional(),
       photo: z.object({ dataUrl: z.string().max(1_300_000), contentType: z.enum(["image/jpeg", "image/png", "image/webp"]), filename: z.string().max(160) }).nullable().optional(),
-    })).mutation(({ ctx, input }) => submitObservation(ctx.user.id, input)),
+    })).mutation(async ({ ctx, input }) => submitObservation(await getAnonymousContributorId(ctx), input)),
     reviewQueue: adminProcedure.query(() => listReviewQueue()),
     review: adminProcedure.input(z.object({ id: z.number().int().positive(), reviewStatus: z.enum(reviewStatuses).exclude(["submitted"]), reviewNotes: z.string().min(3).max(1_200) })).mutation(({ ctx, input }) => reviewObservation(input.id, ctx.user.id, input.reviewStatus, input.reviewNotes)),
   }),
