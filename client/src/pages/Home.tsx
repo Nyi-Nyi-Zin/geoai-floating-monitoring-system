@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
+import { GeoJSON, MapContainer, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import { Activity, BarChart3, Camera, CloudRain, Database, Eye, Info, Layers3, LoaderCircle, MapPinned, ShieldAlert, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { TERRAIN_SCREENING_BANDS, terrainScreeningStyle } from "@/lib/terrainScreening";
+import { findTerrainCellAtLatLng, terrainCellDetail } from "@/lib/terrainCellDetails";
 import { FieldObservationModal } from "@/components/FieldObservationModal";
 import "leaflet/dist/leaflet.css";
 
@@ -29,6 +30,13 @@ function FitBounds({ data }: { data: SpatialCollection | null }) {
     const longitudes = coordinates.filter((_, index) => index % 2 === 0);
     if (latitudes.length && longitudes.length) map.fitBounds([[Math.min(...latitudes), Math.min(...longitudes)], [Math.max(...latitudes), Math.max(...longitudes)]], { padding: [28, 28] });
   }, [data, map]);
+  return null;
+}
+
+function TerrainCellClickCapture({ terrain, onSelect }: { terrain: SpatialCollection | null; onSelect: (feature: SpatialFeature | null) => void }) {
+  useMapEvents({
+    click: event => onSelect(terrain ? findTerrainCellAtLatLng(terrain.features, event.latlng.lat, event.latlng.lng) : null),
+  });
   return null;
 }
 
@@ -69,6 +77,7 @@ export default function Home() {
   const [rainHistory, setRainHistory] = useState<Array<{ observed_date: string; precipitation_mm: number }>>([]);
   const [selectedEvent, setSelectedEvent] = useState<string>("");
   const [hindcast, setHindcast] = useState<Hindcast | null>(null);
+  const [selectedCell, setSelectedCell] = useState<SpatialFeature | null>(null);
   const [spatialOnline, setSpatialOnline] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [observationOpen, setObservationOpen] = useState(false);
@@ -102,6 +111,10 @@ export default function Home() {
     fetch(`/api/spatial/hindcast/${encodeURIComponent(selectedEvent)}`).then(response => response.ok ? response.json() : null).then(data => setHindcast(data)).catch(() => setHindcast(null));
   }, [selectedEvent]);
 
+  useEffect(() => {
+    if (!layers.floodRisk && !layers.gridCells) setSelectedCell(null);
+  }, [layers.floodRisk, layers.gridCells]);
+
   const boundaryLayer = useMemo<SpatialCollection | null>(() => spatial ? { type: "FeatureCollection", features: spatial.features.filter((feature: SpatialFeature) => feature.properties.asset_type === "township_boundary") } : null, [spatial]);
   const riverLayer = useMemo<SpatialCollection | null>(() => spatial ? { type: "FeatureCollection", features: spatial.features.filter((feature: SpatialFeature) => feature.properties.asset_type === "river_segment") } : null, [spatial]);
   const canalLayer = useMemo<SpatialCollection | null>(() => spatial ? { type: "FeatureCollection", features: spatial.features.filter((feature: SpatialFeature) => feature.properties.asset_type === "canal_segment") } : null, [spatial]);
@@ -109,7 +122,15 @@ export default function Home() {
     const band = String(feature?.properties?.screening_band ?? "LOWER");
     return terrainScreeningStyle(band, layers.gridCells, layers.floodRisk);
   };
+  const bindTerrainCellDetail = (feature: SpatialFeature, layer: { on: (events: { click: () => void }) => void }) => {
+    layer.on({ click: () => setSelectedCell(feature) });
+  };
   const overlayTerrain = (layers.floodRisk || layers.gridCells) ? terrain : null;
+  const selectedCellDetail = selectedCell ? terrainCellDetail(selectedCell.properties) : null;
+  const selectedHindcastCell = useMemo(() => {
+    if (!selectedCell || !hindcast) return null;
+    return hindcast.predictions.find(prediction => prediction.cell_id === String(selectedCell.properties.id)) ?? null;
+  }, [hindcast, selectedCell]);
   const historicalFeatures: SpatialCollection | null = layers.historicalFlood ? { type: "FeatureCollection", features: events.map(event => ({ type: "Feature", properties: { id: event.id, name: event.name }, geometry: event.geometry })) } : null;
   const forecast = weather.data?.forecast ?? [];
   const precision = hindcast?.model.metrics?.precision ?? 0.1574;
@@ -127,7 +148,8 @@ export default function Home() {
       <MapContainer center={maubinCenter} zoom={10} minZoom={7} maxZoom={18} className="maubin-map" preferCanvas zoomControl={false}>
         <TileLayer url={basemap === "satellite" ? satelliteTiles : terrainTiles} attribution={basemap === "satellite" ? "Tiles © Esri" : "Map data © OpenTopoMap"} />
         <FitBounds data={spatial} />
-        {overlayTerrain && <GeoJSON data={overlayTerrain} style={riskStyle} />}
+        <TerrainCellClickCapture terrain={overlayTerrain} onSelect={setSelectedCell} />
+        {overlayTerrain && <GeoJSON data={overlayTerrain} style={riskStyle} onEachFeature={bindTerrainCellDetail} />}
         {layers.boundary && boundaryLayer && <GeoJSON data={boundaryLayer} style={{ color: "#e2e8f0", weight: 1.6, dashArray: "6 5", fillOpacity: 0 }} />}
         {layers.labels && boundaryLayer && <GeoJSON data={boundaryLayer} style={{ color: "transparent", weight: 0, fillOpacity: 0 }} onEachFeature={(_, layer) => { layer.bindTooltip("Maubin Township", { permanent: true, direction: "center", className: "map-label" }); }} />}
         {layers.rivers && riverLayer && <GeoJSON data={riverLayer} style={{ color: "#38bdf8", weight: 2.2, opacity: 0.92 }} />}
@@ -141,6 +163,8 @@ export default function Home() {
       </header>
 
       <section className={`side-panel controls-panel ${mobileControlsOpen ? "mobile-controls-open" : ""}`} aria-hidden={!mobileControlsOpen && undefined}><div className="panel-heading"><Layers3 size={16} /><span>Layer control</span><button className="mobile-control-close" type="button" aria-label="Close map layers" onClick={() => setMobileControlsOpen(false)}><X size={16} /></button></div>{([ ["floodRisk", "Flood Risk · terrain screening"], ["gridCells", "Grid Cells"], ["historicalFlood", "Historical Flood"], ["rivers", "Rivers"], ["canals", "Canals"], ["boundary", "Township Boundary"], ["labels", "Labels"] ] as Array<[LayerKey, string]>).map(([key, label]) => <label className="layer-row" key={key}><span>{label}</span><button role="switch" aria-checked={layers[key]} className={`toggle ${layers[key] ? "enabled" : ""}`} onClick={() => setLayers(current => ({ ...current, [key]: !current[key] }))}><i /></button></label>)}{layers.floodRisk && <div className="terrain-legend" aria-label="Terrain screening bands"><strong>Terrain screening bands</strong><div className="terrain-band-list">{TERRAIN_SCREENING_BANDS.map(band => <div key={band.key}><i style={{ background: band.color }} /><span>{band.label}</span></div>)}</div><p>Static terrain screening, not a real-time probability or warning.</p></div>}</section>
+
+      {selectedCellDetail && <aside className="cell-detail-panel" aria-label="Terrain cell details"><div className="cell-detail-heading"><div><span>Terrain cell details</span><strong>{selectedCellDetail.screeningBand.replace("_", " ")} screening</strong></div><button type="button" aria-label="Close terrain cell details" onClick={() => setSelectedCell(null)}><X size={16} /></button></div><div className="cell-detail-grid"><div><span>Grid reference</span><strong>{selectedCellDetail.gridReference}</strong></div><div><span>Static score</span><strong>{selectedCellDetail.screeningScore?.toFixed(1) ?? "Not available"}</strong></div><div><span>Mean elevation</span><strong>{selectedCellDetail.meanElevationM === null ? "Not available" : `${selectedCellDetail.meanElevationM.toFixed(1)} m`}</strong></div><div><span>Local relief</span><strong>{selectedCellDetail.localReliefM === null ? "Not available" : `${selectedCellDetail.localReliefM.toFixed(1)} m`}</strong></div><div><span>Nearest mapped waterway</span><strong>{selectedCellDetail.distanceToWaterwayM === null ? "Not available" : `${selectedCellDetail.distanceToWaterwayM.toFixed(0)} m`}</strong></div><div><span>Dominant land cover</span><strong>{selectedCellDetail.dominantLandCover}</strong></div></div><div className="historical-cell-context"><span>Selected historical event context</span><strong>{hindcast?.event.start_date ?? "Historical event loading"}</strong><p>{selectedHindcastCell ? `Historical model classification: ${selectedHindcastCell.predicted_label ? "screened positive" : "screened negative"} for this selected event.` : "No model classification is available for this cell in the selected historical event."}</p></div><p>Static terrain context only — not a flood probability, forecast, or warning.</p><small>{selectedCellDetail.source} · cell {selectedCellDetail.cellId}</small></aside>}
 
       <section className="side-panel rainfall-panel"><div className="panel-heading"><CloudRain size={16} /><span>Rainfall watch</span></div><div className="rain-title"><strong>{forecast.reduce((sum, point) => sum + point.precipitationMm, 0).toFixed(1)} mm</strong><span>next 7 days · Open-Meteo</span></div>{weather.isLoading ? <div className="loading-inline"><LoaderCircle size={16} />Loading forecast</div> : <RainBars points={forecast} />}<div className="history-header"><span>30-day ERA5 rainfall history</span><small>mm/day</small></div>{rainHistory.length ? <RainSparkline points={rainHistory} /> : <p className="empty-note">Historical rainfall will populate after the first nightly ERA5 refresh.</p>}<div className={`source-freshness ${rainfallHealth?.state ?? "unavailable"}`} role="status"><div><span>{rainfallHealth?.latestObservedDate ? `ERA5 through ${rainfallHealth.latestObservedDate}` : "ERA5 archive refresh"} · {jobLabel(rainfallJob?.state)}</span><strong>{freshnessLabel(rainfallHealth?.state)}</strong></div></div></section>
 

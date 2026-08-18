@@ -99,3 +99,11 @@
 - [x] Strengthen the terrain-screening regression guard against reintroducing historical-hindcast binary red/blue styling.
 - [x] Record an explicit rendered-map confirmation that blue, yellow, orange, and red terrain-screening cells are all visibly present with the static legend and no-warning disclosure in `docs/maubin_terrain_screening_visual_verification_2026-08-18.md`.
 - [x] Publish, synchronize GitHub, and report the corrected Maubin risk-layer presentation.
+
+## Maubin Grid-Cell Detail Interaction
+
+- [x] Audit the active grid-cell click handler, popup/detail UI, and selected historical-hindcast data path to identify why per-cell information no longer appears.
+- [x] Restore an accessible grid-cell detail panel with static terrain context and separately labelled historical-hindcast information, without public probability, forecast, or alert output.
+- [x] Add regression coverage and browser verification for grid-cell detail selection, close behavior, and monitoring-only disclosure.
+- [x] Add selected-event historical-hindcast cell context to the restored detail panel without exposing a public probability, forecast, or alert.
+- [ ] Publish, synchronize GitHub, and report the restored Maubin grid-cell detail interaction.
