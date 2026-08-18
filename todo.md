@@ -98,4 +98,4 @@
 - [x] Explicitly verify in the browser that all four terrain-screening colors, the static legend, and no-warning disclosure render together in the Maubin Flood Risk layer.
 - [x] Strengthen the terrain-screening regression guard against reintroducing historical-hindcast binary red/blue styling.
 - [x] Record an explicit rendered-map confirmation that blue, yellow, orange, and red terrain-screening cells are all visibly present with the static legend and no-warning disclosure in `docs/maubin_terrain_screening_visual_verification_2026-08-18.md`.
-- [ ] Publish, synchronize GitHub, and report the corrected Maubin risk-layer presentation.
+- [x] Publish, synchronize GitHub, and report the corrected Maubin risk-layer presentation.
