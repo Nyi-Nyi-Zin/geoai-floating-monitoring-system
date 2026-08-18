@@ -89,3 +89,13 @@
 - [x] Replace public evidence sign-in with a privacy-preserving browser-scoped contributor identity while retaining throttling and immutable protected review.
 - [x] Add regression coverage and visual verification for anonymous evidence submission, no public review decision, and monitoring-only disclosures.
 - [x] Publish, synchronize GitHub, and report the verified login-free Maubin release.
+
+## Maubin Flood Risk Visualization
+
+- [x] Audit the active Maubin terrain-screening data, polygon styling, legend, and historical map presentation to explain the current red-and-blue display.
+- [x] Restore a readable multi-band terrain-screening palette and legend without presenting it as real-time flood probability, gauge status, or an alert.
+- [x] Add regression coverage and visually verify the corrected map layer and monitoring-only disclosures.
+- [x] Explicitly verify in the browser that all four terrain-screening colors, the static legend, and no-warning disclosure render together in the Maubin Flood Risk layer.
+- [x] Strengthen the terrain-screening regression guard against reintroducing historical-hindcast binary red/blue styling.
+- [x] Record an explicit rendered-map confirmation that blue, yellow, orange, and red terrain-screening cells are all visibly present with the static legend and no-warning disclosure in `docs/maubin_terrain_screening_visual_verification_2026-08-18.md`.
+- [ ] Publish, synchronize GitHub, and report the corrected Maubin risk-layer presentation.

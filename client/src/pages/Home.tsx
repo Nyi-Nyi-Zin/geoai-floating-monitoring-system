@@ -3,6 +3,7 @@ import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
 import { Activity, BarChart3, Camera, CloudRain, Database, Eye, Info, Layers3, LoaderCircle, MapPinned, ShieldAlert, X } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { TERRAIN_SCREENING_BANDS, terrainScreeningStyle } from "@/lib/terrainScreening";
 import { FieldObservationModal } from "@/components/FieldObservationModal";
 import "leaflet/dist/leaflet.css";
 
@@ -15,7 +16,6 @@ type Hindcast = { event: FloodEvent; model: { version: string; threshold?: numbe
 const satelliteTiles = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const terrainTiles = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
 const maubinCenter: [number, number] = [16.7247, 95.6687];
-const bandColor: Record<string, string> = { LOWER: "#60a5fa", MODERATE: "#facc15", HIGH: "#fb923c", VERY_HIGH: "#ef4444" };
 
 function FitBounds({ data }: { data: SpatialCollection | null }) {
   const map = useMap();
@@ -102,14 +102,12 @@ export default function Home() {
     fetch(`/api/spatial/hindcast/${encodeURIComponent(selectedEvent)}`).then(response => response.ok ? response.json() : null).then(data => setHindcast(data)).catch(() => setHindcast(null));
   }, [selectedEvent]);
 
-  const predictionByCell = useMemo(() => new Map((hindcast?.predictions ?? []).map(row => [row.cell_id, row])), [hindcast]);
   const boundaryLayer = useMemo<SpatialCollection | null>(() => spatial ? { type: "FeatureCollection", features: spatial.features.filter((feature: SpatialFeature) => feature.properties.asset_type === "township_boundary") } : null, [spatial]);
   const riverLayer = useMemo<SpatialCollection | null>(() => spatial ? { type: "FeatureCollection", features: spatial.features.filter((feature: SpatialFeature) => feature.properties.asset_type === "river_segment") } : null, [spatial]);
   const canalLayer = useMemo<SpatialCollection | null>(() => spatial ? { type: "FeatureCollection", features: spatial.features.filter((feature: SpatialFeature) => feature.properties.asset_type === "canal_segment") } : null, [spatial]);
   const riskStyle = (feature?: SpatialFeature) => {
-    const properties = feature?.properties ?? {}; const id = String(properties.id ?? feature?.id ?? ""); const prediction = predictionByCell.get(id);
-    if (prediction) return { color: "#0f172a", weight: 0.15, fillColor: prediction.probability >= (hindcast?.model.threshold ?? 0.53) ? "#f43f5e" : "#60a5fa", fillOpacity: 0.18 + prediction.probability * 0.58 };
-    const band = String(properties.screening_band ?? "LOWER"); return { color: "#0f172a", weight: layers.gridCells ? 0.3 : 0, fillColor: bandColor[band] ?? bandColor.LOWER, fillOpacity: layers.floodRisk ? 0.38 : 0 };
+    const band = String(feature?.properties?.screening_band ?? "LOWER");
+    return terrainScreeningStyle(band, layers.gridCells, layers.floodRisk);
   };
   const overlayTerrain = (layers.floodRisk || layers.gridCells) ? terrain : null;
   const historicalFeatures: SpatialCollection | null = layers.historicalFlood ? { type: "FeatureCollection", features: events.map(event => ({ type: "Feature", properties: { id: event.id, name: event.name }, geometry: event.geometry })) } : null;
@@ -142,7 +140,7 @@ export default function Home() {
         <div className="top-actions"><div className="basemap-switch" aria-label="Basemap selector"><button type="button" className={basemap === "satellite" ? "active" : ""} aria-pressed={basemap === "satellite"} onClick={() => setBasemap("satellite")}>Satellite</button><button type="button" className={basemap === "terrain" ? "active" : ""} aria-pressed={basemap === "terrain"} onClick={() => setBasemap("terrain")}>Terrain</button></div><button className="mobile-layers-button" type="button" aria-label="Open map layers" aria-expanded={mobileControlsOpen} onClick={() => setMobileControlsOpen(true)}><Layers3 size={16} /></button><div className="status-pill"><span className={spatialOnline ? "status-dot online" : "status-dot"} />{spatialOnline ? "Spatial DB online" : "Spatial API connecting"}</div><button className="evidence-button" type="button" onClick={() => setObservationOpen(true)}><Camera size={15} /> Evidence</button><button className="ghost-button" onClick={() => setAboutOpen(true)}><Info size={16} /> Methodology</button></div>
       </header>
 
-      <section className={`side-panel controls-panel ${mobileControlsOpen ? "mobile-controls-open" : ""}`} aria-hidden={!mobileControlsOpen && undefined}><div className="panel-heading"><Layers3 size={16} /><span>Layer control</span><button className="mobile-control-close" type="button" aria-label="Close map layers" onClick={() => setMobileControlsOpen(false)}><X size={16} /></button></div>{([ ["floodRisk", "Flood Risk"], ["gridCells", "Grid Cells"], ["historicalFlood", "Historical Flood"], ["rivers", "Rivers"], ["canals", "Canals"], ["boundary", "Township Boundary"], ["labels", "Labels"] ] as Array<[LayerKey, string]>).map(([key, label]) => <label className="layer-row" key={key}><span>{label}</span><button role="switch" aria-checked={layers[key]} className={`toggle ${layers[key] ? "enabled" : ""}`} onClick={() => setLayers(current => ({ ...current, [key]: !current[key] }))}><i /></button></label>)}</section>
+      <section className={`side-panel controls-panel ${mobileControlsOpen ? "mobile-controls-open" : ""}`} aria-hidden={!mobileControlsOpen && undefined}><div className="panel-heading"><Layers3 size={16} /><span>Layer control</span><button className="mobile-control-close" type="button" aria-label="Close map layers" onClick={() => setMobileControlsOpen(false)}><X size={16} /></button></div>{([ ["floodRisk", "Flood Risk · terrain screening"], ["gridCells", "Grid Cells"], ["historicalFlood", "Historical Flood"], ["rivers", "Rivers"], ["canals", "Canals"], ["boundary", "Township Boundary"], ["labels", "Labels"] ] as Array<[LayerKey, string]>).map(([key, label]) => <label className="layer-row" key={key}><span>{label}</span><button role="switch" aria-checked={layers[key]} className={`toggle ${layers[key] ? "enabled" : ""}`} onClick={() => setLayers(current => ({ ...current, [key]: !current[key] }))}><i /></button></label>)}{layers.floodRisk && <div className="terrain-legend" aria-label="Terrain screening bands"><strong>Terrain screening bands</strong><div className="terrain-band-list">{TERRAIN_SCREENING_BANDS.map(band => <div key={band.key}><i style={{ background: band.color }} /><span>{band.label}</span></div>)}</div><p>Static terrain screening, not a real-time probability or warning.</p></div>}</section>
 
       <section className="side-panel rainfall-panel"><div className="panel-heading"><CloudRain size={16} /><span>Rainfall watch</span></div><div className="rain-title"><strong>{forecast.reduce((sum, point) => sum + point.precipitationMm, 0).toFixed(1)} mm</strong><span>next 7 days · Open-Meteo</span></div>{weather.isLoading ? <div className="loading-inline"><LoaderCircle size={16} />Loading forecast</div> : <RainBars points={forecast} />}<div className="history-header"><span>30-day ERA5 rainfall history</span><small>mm/day</small></div>{rainHistory.length ? <RainSparkline points={rainHistory} /> : <p className="empty-note">Historical rainfall will populate after the first nightly ERA5 refresh.</p>}<div className={`source-freshness ${rainfallHealth?.state ?? "unavailable"}`} role="status"><div><span>{rainfallHealth?.latestObservedDate ? `ERA5 through ${rainfallHealth.latestObservedDate}` : "ERA5 archive refresh"} · {jobLabel(rainfallJob?.state)}</span><strong>{freshnessLabel(rainfallHealth?.state)}</strong></div></div></section>
 
