@@ -113,4 +113,4 @@
 - [x] Audit the available historical HGB v7 per-cell outputs and define a replay-only heatmap contract that cannot be mistaken for a live forecast or warning.
 - [x] Add a separate Layer Control toggle and multi-band heatmap for the selected historical event, preserving the static terrain-screening layer.
 - [x] Add regression coverage and browser verification for toggle behavior, selected-event changes, experimental replay disclosure, and absence of current/future output.
-- [ ] Publish, synchronize GitHub, and report the safe historical model heatmap enhancement.
+- [x] Publish, synchronize GitHub, and report the safe historical model heatmap enhancement.
