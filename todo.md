@@ -121,3 +121,12 @@
 - [x] Clarify the public distinction between static Flood Risk terrain screening, historical HGB v7 replay, and prospective monitoring.
 - [x] Add regression coverage for the distinction and no-current/future-probability safety language.
 - [x] Verify, publish, synchronize GitHub, and report the clarified behavior.
+
+
+## Burmese Repository Documentation
+
+- [x] Audit the current feat/maubin branch structure, setup requirements, feature modules, integrations, and dataset provenance.
+- [x] Write a Burmese-language README for setting up and running the project on another machine.
+- [x] Write Burmese feature, data-flow, model, safety, and dataset-source documentation for the current branch.
+- [x] Review documentation accuracy and run repository checks.
+- [ ] Synchronize GitHub, save the documentation release checkpoint, and deliver the documented version.
