@@ -88,4 +88,4 @@
 - [x] Audit Maubin’s current authentication-gated evidence procedures, client redirects, and persistence boundary.
 - [x] Replace public evidence sign-in with a privacy-preserving browser-scoped contributor identity while retaining throttling and immutable protected review.
 - [x] Add regression coverage and visual verification for anonymous evidence submission, no public review decision, and monitoring-only disclosures.
-- [ ] Publish, synchronize GitHub, and report the verified login-free Maubin release.
+- [x] Publish, synchronize GitHub, and report the verified login-free Maubin release.
