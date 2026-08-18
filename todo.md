@@ -85,6 +85,7 @@
 ## Maubin Production Redeployment
 
 - [x] Re-validate the checked-out `feat/maubin` release build, regression suite, and monitoring-only safeguards before publication.
-- [ ] Publish the verified `feat/maubin` release to production without merging `feat/myanmar`.
-- [ ] Verify the live production dashboard serves the Maubin release and report the deployment result.
+- [x] Publish the verified `feat/maubin` release to production without merging `feat/myanmar`.
+- [x] Verify the live production dashboard serves the Maubin release and report the deployment result.
+- [x] Report the completed feat/maubin redeployment with the deployed URL, verified commit, validation result, and monitoring-only status.
 - [x] Deliver a user-facing production-readiness release summary covering the deployed URL, checkpoint version, GitHub branch commit, key improvements, validation results, and remaining monitoring-only limits.
