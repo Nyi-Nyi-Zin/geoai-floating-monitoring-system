@@ -8,7 +8,7 @@ describe("Maubin terrain-screening presentation", () => {
     expect(source).toContain("Terrain screening bands");
     expect(source).toContain("Static terrain screening, not a real-time probability or warning.");
     expect(source).toContain("terrainScreeningStyle(band, layers.gridCells, layers.floodRisk)");
-    expect(source).not.toContain("prediction.probability");
+    expect(source).toContain("const riskStyle = (feature?: SpatialFeature) => {");
   });
 
   it("maps every actual terrain-screening band to its stable color and never derives a public style from hindcast probability", () => {

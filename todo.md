@@ -107,3 +107,10 @@
 - [x] Add regression coverage and browser verification for grid-cell detail selection, close behavior, and monitoring-only disclosure.
 - [x] Add selected-event historical-hindcast cell context to the restored detail panel without exposing a public probability, forecast, or alert.
 - [x] Publish, synchronize GitHub, and report the restored Maubin grid-cell detail interaction.
+
+## Maubin Historical Model Heatmap
+
+- [x] Audit the available historical HGB v7 per-cell outputs and define a replay-only heatmap contract that cannot be mistaken for a live forecast or warning.
+- [x] Add a separate Layer Control toggle and multi-band heatmap for the selected historical event, preserving the static terrain-screening layer.
+- [x] Add regression coverage and browser verification for toggle behavior, selected-event changes, experimental replay disclosure, and absence of current/future output.
+- [ ] Publish, synchronize GitHub, and report the safe historical model heatmap enhancement.

@@ -30,3 +30,5 @@ button { cursor: pointer; }
 @media (min-width: 621px) { .hindcast-panel { top: 470px; } .empty-note { padding-block: 13px; } }
 @media (min-width: 621px) { .rain-bars { height: 88px; } .sparkline { height: 55px; } .hindcast-panel { top: 440px; } .hindcast-panel .disclaimer p { font-size: 9px; line-height: 1.25; } }
 @media (max-width: 620px) { .hindcast-panel { top: 400px; bottom: 150px; max-height: none; } }
+
+.historical-heatmap-legend { margin-top: 10px; padding: 11px; border: 1px solid rgba(216,180,254,.22); border-radius: 9px; background: rgba(91,33,182,.14); }.historical-heatmap-legend > strong { display: block; color: #f3e8ff; font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }.historical-heatmap-legend .terrain-band-list div { color: #eadcff; }.historical-heatmap-legend p { margin: 9px 0 0; color: #d7c5ee; font-size: 10px; line-height: 1.4; }
