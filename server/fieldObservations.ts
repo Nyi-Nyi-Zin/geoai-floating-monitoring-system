@@ -9,42 +9,6 @@ export const reviewStatuses = ["submitted", "verified", "rejected"] as const;
 export type ImpactClass = (typeof impactClasses)[number];
 export type ReviewStatus = (typeof reviewStatuses)[number];
 
-export type ProspectiveEvidenceMatchingInput = {
-  verifiedObservationCount: number;
-  prospectiveSnapshotCount: number;
-  matchedPairCount: number;
-  latestVerifiedObservationAt?: Date | null;
-  now?: Date;
-};
-
-export type ProspectiveEvidenceMatchingReadiness = {
-  status: "no_verified_observations" | "verified_observations_no_snapshots" | "verified_observations_stale" | "verified_observations_unmatched" | "matched_evidence_insufficient_for_metrics" | "eligible_pairs_pending_analyst_review";
-  verifiedObservationCount: number;
-  prospectiveSnapshotCount: number;
-  matchedPairCount: number;
-  minimumMatchedPairsForMetrics: number;
-  metricsAuthorized: false;
-  modelPromotionAuthorized: false;
-  reason: string;
-};
-
-const STALE_EVIDENCE_MS = 90 * 24 * 60 * 60 * 1_000;
-const MINIMUM_MATCHED_PAIRS_FOR_METRICS = 10;
-
-export function classifyProspectiveEvidenceMatchingReadiness(input: ProspectiveEvidenceMatchingInput): ProspectiveEvidenceMatchingReadiness {
-  const now = input.now ?? new Date();
-  const verifiedObservationCount = Math.max(0, input.verifiedObservationCount);
-  const prospectiveSnapshotCount = Math.max(0, input.prospectiveSnapshotCount);
-  const matchedPairCount = Math.max(0, input.matchedPairCount);
-  const base = { verifiedObservationCount, prospectiveSnapshotCount, matchedPairCount, minimumMatchedPairsForMetrics: MINIMUM_MATCHED_PAIRS_FOR_METRICS, metricsAuthorized: false as const, modelPromotionAuthorized: false as const };
-  if (!verifiedObservationCount) return { ...base, status: "no_verified_observations", reason: "No verified field observations are available; no prospective matching or metric may be calculated." };
-  if (!prospectiveSnapshotCount) return { ...base, status: "verified_observations_no_snapshots", reason: "Verified observations exist, but no immutable prospective snapshots are available for issue-time matching." };
-  if (input.latestVerifiedObservationAt && now.getTime() - input.latestVerifiedObservationAt.getTime() > STALE_EVIDENCE_MS) return { ...base, status: "verified_observations_stale", reason: "The newest verified observation is older than the 90-day readiness window; analyst review is required before matching." };
-  if (!matchedPairCount) return { ...base, status: "verified_observations_unmatched", reason: "Verified observations and prospective snapshots exist, but no eligible time-and-location pairs have been reviewed." };
-  if (matchedPairCount < MINIMUM_MATCHED_PAIRS_FOR_METRICS) return { ...base, status: "matched_evidence_insufficient_for_metrics", reason: "Eligible reviewed pairs exist, but the pre-registered minimum of 10 pairs for exploratory metrics is not met." };
-  return { ...base, status: "eligible_pairs_pending_analyst_review", reason: "The minimum pair count is reached, but analyst review and the prospective protocol remain required before any metric or promotion decision." };
-}
-
 export type ObservationInput = {
   observedAt: Date;
   latitude: number;
@@ -137,12 +101,9 @@ export async function reviewObservation(id: number, reviewerUserId: number, revi
 
 export async function getObservationSummary() {
   const db = await getDb();
-  const empty = { submitted: 0, verified: 0, rejected: 0, latestVerifiedObservedAt: null as string | null, label: "Field evidence" as const, readiness: "no_verified_local_evidence" as const };
+  const empty = { submitted: 0, verified: 0, rejected: 0, label: "Field evidence" as const, readiness: "no_verified_local_evidence" as const };
   if (!db) return empty;
-  const [rows, latestVerifiedRows] = await Promise.all([
-    db.select({ reviewStatus: fieldObservations.reviewStatus, count: sql<number>`count(*)` }).from(fieldObservations).groupBy(fieldObservations.reviewStatus),
-    db.select({ observedAt: fieldObservations.observedAt }).from(fieldObservations).where(eq(fieldObservations.reviewStatus, "verified")).orderBy(desc(fieldObservations.observedAt)).limit(1),
-  ]);
+  const rows = await db.select({ reviewStatus: fieldObservations.reviewStatus, count: sql<number>`count(*)` }).from(fieldObservations).groupBy(fieldObservations.reviewStatus);
   const counts = new Map(rows.map(row => [row.reviewStatus, Number(row.count)]));
-  return { submitted: counts.get("submitted") ?? 0, verified: counts.get("verified") ?? 0, rejected: counts.get("rejected") ?? 0, latestVerifiedObservedAt: latestVerifiedRows[0]?.observedAt?.toISOString() ?? null, label: "Field evidence" as const, readiness: (counts.get("verified") ? "verified_evidence_available" : "no_verified_local_evidence") as "verified_evidence_available" | "no_verified_local_evidence" };
+  return { submitted: counts.get("submitted") ?? 0, verified: counts.get("verified") ?? 0, rejected: counts.get("rejected") ?? 0, label: "Field evidence" as const, readiness: (counts.get("verified") ? "verified_evidence_available" : "no_verified_local_evidence") as "verified_evidence_available" | "no_verified_local_evidence" };
 }

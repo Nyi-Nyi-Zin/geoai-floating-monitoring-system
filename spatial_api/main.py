@@ -11,11 +11,6 @@ SEED_BASE_URL = os.getenv("SPATIAL_SEED_BASE_URL", "http://127.0.0.1:3000")
 SPATIAL_SEED_PATH = "/manus-storage/maubin_spatial_seed_08a16481.json"
 HINDCAST_SEED_PATH = "/manus-storage/maubin_hindcast_seed_v7_e80e6338.json"
 RAINFALL_SEED_PATH = "/manus-storage/maubin_rainfall_seed_b7223d86.json"
-MYANMAR_ADMIN_SEED_PATH = "/manus-storage/myanmar_admin_seed_v1_ff8b1711.json"
-MYANMAR_ADMIN_DISPLAY_PATH = "/manus-storage/myanmar_admin1_display_v1_bbe6a3f3.json"
-MYANMAR_ADMIN_PARTITIONS_PATH = "/manus-storage/myanmar_admin1_partitions_v1_a330f15d.json"
-MYANMAR_ADMIN_EVIDENCE_READINESS_PATH = "/manus-storage/myanmar_admin1_evidence_readiness_v4_f1af72ae.json"
-MAUBIN_LOCAL_WATER_EVIDENCE_READINESS_PATH = "/manus-storage/maubin_local_water_evidence_readiness_v1_90927ebf.json"
 
 
 def load_json(path: str) -> dict:
@@ -36,31 +31,6 @@ def hindcast_seed() -> dict:
 @lru_cache(maxsize=1)
 def rainfall_seed() -> dict:
     return load_json(RAINFALL_SEED_PATH)
-
-
-@lru_cache(maxsize=1)
-def myanmar_admin_seed() -> dict:
-    return load_json(MYANMAR_ADMIN_SEED_PATH)
-
-
-@lru_cache(maxsize=1)
-def myanmar_admin_display_seed() -> dict:
-    return load_json(MYANMAR_ADMIN_DISPLAY_PATH)
-
-
-@lru_cache(maxsize=1)
-def myanmar_admin_partition_seed() -> dict:
-    return load_json(MYANMAR_ADMIN_PARTITIONS_PATH)
-
-
-@lru_cache(maxsize=1)
-def myanmar_admin_evidence_readiness_seed() -> dict:
-    return load_json(MYANMAR_ADMIN_EVIDENCE_READINESS_PATH)
-
-
-@lru_cache(maxsize=1)
-def maubin_local_water_evidence_readiness_seed() -> dict:
-    return load_json(MAUBIN_LOCAL_WATER_EVIDENCE_READINESS_PATH)
 
 
 def feature_type(feature: dict) -> str:
@@ -138,66 +108,3 @@ def hindcast(event_id: str) -> dict:
 @app.get("/rainfall-history")
 def rainfall_history() -> dict:
     return rainfall_seed()
-
-
-@app.get("/maubin/local-water-evidence-readiness")
-def maubin_local_water_evidence_readiness() -> dict:
-    seed = maubin_local_water_evidence_readiness_seed()
-    return {
-        "schema": seed.get("schema"),
-        "scope": seed.get("scope"),
-        "river_stage": seed.get("river_stage"),
-        "tide_and_coastal_water": seed.get("tide_and_coastal_water"),
-        "official_network_context": seed.get("official_network_context"),
-        "candidate_gate": seed.get("candidate_gate"),
-        "safety": seed.get("safety"),
-    }
-
-
-@app.get("/national-admin/metadata")
-def national_admin_metadata() -> dict:
-    seed = myanmar_admin_seed()
-    return {
-        "schema": seed.get("schema"),
-        "source": seed.get("source"),
-        "coverage": seed.get("coverage"),
-    }
-
-
-@app.get("/national-admin/boundary")
-def national_admin_boundary() -> dict:
-    return myanmar_admin_seed().get("admin0", {"type": "FeatureCollection", "features": []})
-
-
-@app.get("/national-admin/regions")
-def national_admin_regions() -> dict:
-    return myanmar_admin_display_seed().get("admin1", {"type": "FeatureCollection", "features": []})
-
-
-@app.get("/national-admin/partitions")
-def national_admin_partitions() -> dict:
-    seed = myanmar_admin_partition_seed()
-    return {
-        "schema": seed.get("schema"),
-        "source": seed.get("source"),
-        "status": seed.get("status"),
-        "partitions": seed.get("partitions", []),
-    }
-
-
-@app.get("/national-admin/evidence-readiness")
-def national_admin_evidence_readiness() -> dict:
-    seed = myanmar_admin_evidence_readiness_seed()
-    return {
-        "schema": seed.get("schema"),
-        "region_count": seed.get("region_count", 0),
-        "regions": seed.get("regions", []),
-        "static_context": seed.get("static_context"),
-        "upstream_flow_readiness": seed.get("upstream_flow_readiness"),
-        "official_issue_time_flow_access": seed.get("official_issue_time_flow_access"),
-        "nonlogin_source_quality": seed.get("nonlogin_source_quality"),
-        "prospective_validation_readiness": seed.get("prospective_validation_readiness"),
-        "candidate_gate": seed.get("candidate_gate"),
-        "interpretation": seed.get("interpretation"),
-        "limits": seed.get("limits", []),
-    }

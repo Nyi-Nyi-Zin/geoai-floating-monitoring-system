@@ -1,6 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
 import { prospectiveForecastSnapshots, rainfallHistory, scheduleConfigs } from "../drizzle/schema";
-import { sql } from "drizzle-orm";
 import { getDb } from "./db";
 import { storageGetSignedUrl } from "./storage";
 
@@ -296,13 +295,6 @@ export async function getLatestProspectiveMonitoring(): Promise<ProspectiveMonit
   if (!row) return { ...base, latestIssueTime: null, freshness: "not_yet_available" as const, targetDate: null, horizonDays: null, projectionStatus: "awaiting_first_six_hour_refresh", qualityFlags: ["awaiting_first_six_hour_refresh"] };
   const flags = jsonValue(row.qualityFlags);
   return { ...base, latestIssueTime: row.issueTime.toISOString(), freshness: classifyFreshness(row.issueTime, 12), targetDate: row.targetDate, horizonDays: row.horizonDays, projectionStatus: row.projectionStatus, qualityFlags: Array.isArray(flags) ? flags.map(String) : ["invalid_quality_flags"] };
-}
-
-export async function getProspectiveSnapshotCount() {
-  const db = await getDb();
-  if (!db) return 0;
-  const rows = await db.select({ count: sql<number>`count(*)` }).from(prospectiveForecastSnapshots);
-  return Number(rows[0]?.count ?? 0);
 }
 
 export async function getOperationalMonitoringStatus(now = new Date()): Promise<OperationalMonitoringStatus> {

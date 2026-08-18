@@ -1,9 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
-const mocked = vi.hoisted(() => ({ contributorId: vi.fn(async () => 73), submitObservation: vi.fn(), reviewObservation: vi.fn() }));
-
-vi.mock("./anonymousContributor", () => ({ getAnonymousContributorId: mocked.contributorId }));
+const mocked = vi.hoisted(() => ({ submitObservation: vi.fn(), reviewObservation: vi.fn() }));
 
 vi.mock("./fieldObservations", () => ({
   impactClasses: ["flooded", "water_on_road", "access_disrupted", "no_flood_observed"],
@@ -20,13 +18,13 @@ import { appRouter } from "./routers";
 const reporter = { id: 21, openId: "field-reporter", name: "Reporter", email: null, loginMethod: "manus", role: "user" as const, createdAt: new Date(), updatedAt: new Date(), lastSignedIn: new Date() };
 const administrator = { ...reporter, id: 1, openId: "field-admin", role: "admin" as const };
 
-describe("field observation router success paths", () => {
-  it("passes an anonymous report through the public API to persistence", async () => {
+describe("field observation protected router success paths", () => {
+  it("passes an authenticated report through the protected API to persistence", async () => {
     mocked.submitObservation.mockResolvedValueOnce({ id: 91, reviewStatus: "submitted", photoStored: false });
-    const caller = appRouter.createCaller({ user: null, req: {} as TrpcContext["req"], res: {} as TrpcContext["res"] });
+    const caller = appRouter.createCaller({ user: reporter, req: {} as TrpcContext["req"], res: {} as TrpcContext["res"] });
     const input = { observedAt: new Date("2026-08-16T18:00:00Z"), latitude: 16.7247, longitude: 95.6687, impactClass: "flooded" as const, locationAccuracyM: null, waterDepthCm: 18, notes: "Observed water on the access road.", photo: null };
     await expect(caller.observations.submit(input)).resolves.toEqual({ id: 91, reviewStatus: "submitted", photoStored: false });
-    expect(mocked.submitObservation).toHaveBeenCalledWith(73, expect.objectContaining({ latitude: 16.7247, longitude: 95.6687, impactClass: "flooded" }));
+    expect(mocked.submitObservation).toHaveBeenCalledWith(21, expect.objectContaining({ latitude: 16.7247, longitude: 95.6687, impactClass: "flooded" }));
   });
 
   it("passes an administrator review and rationale through the protected API to persistence", async () => {

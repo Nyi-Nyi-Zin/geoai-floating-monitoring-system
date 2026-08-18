@@ -11,15 +11,10 @@ type SpatialFeature = Feature<Geometry, Record<string, unknown>>;
 type SpatialCollection = FeatureCollection<Geometry, Record<string, unknown>>;
 type FloodEvent = { id: string; name: string; start_date: string; end_date: string; area_km2: number; geometry: Geometry };
 type Hindcast = { event: FloodEvent; model: { version: string; threshold?: number; metrics?: { precision?: number; recall?: number; f1?: number; roc_auc?: number; pr_auc?: number }; predictors?: { tide?: string } }; predictions: Array<{ cell_id: string; probability: number; predicted_label: boolean }> };
-type NationalAdminMetadata = { source?: { boundary_valid_on?: string; dataset?: string }; coverage?: { admin1_feature_count?: number; status?: string } };
-type NationalEvidenceReadiness = { region_count?: number; regions?: Array<{ admin1_pcode: string; admin1_name: string; evidence_readiness: string }>; static_context?: { status?: string; interpretation?: string }; upstream_flow_readiness?: { status?: string; regions_with_source_snapshot?: number; model_feature_authorized?: boolean; reason?: string }; official_issue_time_flow_access?: { status?: string; dataset?: string; issue_time_feature_authorized?: boolean; reason?: string }; nonlogin_source_quality?: { status?: string; expected_admin1_region_count?: number; model_feature_authorized?: boolean; reason?: string }; prospective_validation_readiness?: { status?: string; model_evaluation_authorized?: boolean; reason?: string }; candidate_gate?: { status?: string; model_status?: string; reason?: string }; interpretation?: string; limits?: string[] };
-type NationalCoverageFilter = "all" | "historical" | "limited" | "insufficient";
-type MaubinLocalWaterReadiness = { river_stage?: { status?: string; historical_context?: { station?: string; record_count?: number; coverage_start?: string; coverage_end?: string }; live_feed_available?: boolean; reason?: string }; tide_and_coastal_water?: { status?: string; station?: string; public_data_status?: string; station_status?: string; reason?: string }; candidate_gate?: { status?: string; reason?: string }; safety?: string };
 
 const satelliteTiles = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const terrainTiles = "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
 const maubinCenter: [number, number] = [16.7247, 95.6687];
-const myanmarCenter: [number, number] = [21.9162, 95.9560];
 const bandColor: Record<string, string> = { LOWER: "#60a5fa", MODERATE: "#facc15", HIGH: "#fb923c", VERY_HIGH: "#ef4444" };
 
 function FitBounds({ data }: { data: SpatialCollection | null }) {
@@ -34,12 +29,6 @@ function FitBounds({ data }: { data: SpatialCollection | null }) {
     const longitudes = coordinates.filter((_, index) => index % 2 === 0);
     if (latitudes.length && longitudes.length) map.fitBounds([[Math.min(...latitudes), Math.min(...longitudes)], [Math.max(...latitudes), Math.max(...longitudes)]], { padding: [28, 28] });
   }, [data, map]);
-  return null;
-}
-
-function CoverageViewport({ nationwide }: { nationwide: boolean }) {
-  const map = useMap();
-  useEffect(() => { map.setView(nationwide ? myanmarCenter : maubinCenter, nationwide ? 5 : 10, { animate: false }); }, [map, nationwide]);
   return null;
 }
 
@@ -85,13 +74,6 @@ export default function Home() {
   const [observationOpen, setObservationOpen] = useState(false);
   const [mobileControlsOpen, setMobileControlsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [nationwideMode, setNationwideMode] = useState(false);
-  const [nationalRegions, setNationalRegions] = useState<SpatialCollection | null>(null);
-  const [nationalMetadata, setNationalMetadata] = useState<NationalAdminMetadata | null>(null);
-  const [nationalEvidence, setNationalEvidence] = useState<NationalEvidenceReadiness | null>(null);
-  const [nationalLoading, setNationalLoading] = useState(false);
-  const [nationalCoverageFilter, setNationalCoverageFilter] = useState<NationalCoverageFilter>("all");
-  const [localWaterReadiness, setLocalWaterReadiness] = useState<MaubinLocalWaterReadiness | null>(null);
   const weather = trpc.monitoring.weather.useQuery(undefined, { retry: 1 });
   const status = trpc.monitoring.status.useQuery();
   const prospective = trpc.monitoring.prospective.useQuery(undefined, { retry: 1 });
@@ -100,36 +82,20 @@ export default function Home() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [health, waterways, terrainData, eventData, history, localWater] = await Promise.all([
+        const [health, waterways, terrainData, eventData, history] = await Promise.all([
           fetch("/api/spatial/health").then(response => response.json()),
           fetch("/api/spatial/waterways").then(response => response.json()),
           fetch("/api/spatial/terrain").then(response => response.json()),
           fetch("/api/spatial/flood-events").then(response => response.json()),
           fetch("/api/spatial/rainfall-history").then(response => response.json()),
-          fetch("/api/spatial/maubin/local-water-evidence-readiness").then(response => response.ok ? response.json() : null),
         ]);
-        setSpatialOnline(Boolean(health.ok)); setSpatial(waterways); setTerrain(terrainData); setEvents(eventData.events ?? []); setRainHistory(history.history ?? []); setLocalWaterReadiness(localWater);
+        setSpatialOnline(Boolean(health.ok)); setSpatial(waterways); setTerrain(terrainData); setEvents(eventData.events ?? []); setRainHistory(history.history ?? []);
         const initialEvent = eventData.events?.find((event: FloodEvent) => new Date(event.start_date).getFullYear() >= 2004) ?? eventData.events?.[0];
         if (initialEvent) setSelectedEvent(String(initialEvent.id));
       } finally { setLoading(false); }
     };
     void load();
   }, []);
-
-  useEffect(() => {
-    if (!nationwideMode || nationalRegions) return;
-    let active = true;
-    setNationalLoading(true);
-    Promise.all([
-      fetch("/api/spatial/national-admin/metadata").then(response => response.ok ? response.json() : null),
-      fetch("/api/spatial/national-admin/regions").then(response => response.ok ? response.json() : null),
-      fetch("/api/spatial/national-admin/evidence-readiness").then(response => response.ok ? response.json() : null),
-    ]).then(([metadata, regions, evidence]) => {
-      if (!active) return;
-      setNationalMetadata(metadata); setNationalRegions(regions); setNationalEvidence(evidence);
-    }).catch(() => { if (active) { setNationalRegions(null); setNationalEvidence(null); } }).finally(() => { if (active) setNationalLoading(false); });
-    return () => { active = false; };
-  }, [nationalRegions, nationwideMode]);
 
   useEffect(() => {
     if (!selectedEvent) return;
@@ -157,41 +123,30 @@ export default function Home() {
   const rainfallJob = operational.data?.jobs.find(job => job.key === "nightly-rainfall-refresh");
   const prospectiveJob = operational.data?.jobs.find(job => job.key === "six-hour-prospective-monitoring-refresh");
   const overallRefreshState = prospectiveJob?.state === "failed" || rainfallJob?.state === "failed" ? "Attention needed" : prospectiveState?.freshness === "late" || rainfallHealth?.state === "late" ? "Refresh late" : "Monitoring";
-  const historicalOnlyRegions = nationalEvidence?.regions?.filter(region => region.evidence_readiness === "historical_source_coverage_only_not_validated_for_prediction").length ?? 0;
-  const filteredNationalRegions = useMemo<SpatialCollection | null>(() => {
-    if (!nationalRegions || nationalCoverageFilter === "all") return nationalRegions;
-    const statusFor = (pcode: unknown) => nationalEvidence?.regions?.find(region => region.admin1_pcode === pcode)?.evidence_readiness;
-    const requiredStatus = nationalCoverageFilter === "historical" ? "historical_source_coverage_only_not_validated_for_prediction" : nationalCoverageFilter === "limited" ? "limited_observed_flood_examples" : "insufficient_historical_source_coverage";
-    return { type: "FeatureCollection", features: nationalRegions.features.filter(feature => statusFor(feature.properties?.adm1_pcode) === requiredStatus) };
-  }, [nationalCoverageFilter, nationalEvidence?.regions, nationalRegions]);
 
   return <div className="dashboard-shell">
     <main className="map-stage">
-      <MapContainer center={maubinCenter} zoom={10} minZoom={5} maxZoom={18} className="maubin-map" preferCanvas zoomControl={false}>
+      <MapContainer center={maubinCenter} zoom={10} minZoom={7} maxZoom={18} className="maubin-map" preferCanvas zoomControl={false}>
         <TileLayer url={basemap === "satellite" ? satelliteTiles : terrainTiles} attribution={basemap === "satellite" ? "Tiles © Esri" : "Map data © OpenTopoMap"} />
-        <CoverageViewport nationwide={nationwideMode} />
-        {!nationwideMode && <FitBounds data={spatial} />}
-        {!nationwideMode && overlayTerrain && <GeoJSON data={overlayTerrain} style={riskStyle} />}
-        {!nationwideMode && layers.boundary && boundaryLayer && <GeoJSON data={boundaryLayer} style={{ color: "#e2e8f0", weight: 1.6, dashArray: "6 5", fillOpacity: 0 }} />}
-        {!nationwideMode && layers.labels && boundaryLayer && <GeoJSON data={boundaryLayer} style={{ color: "transparent", weight: 0, fillOpacity: 0 }} onEachFeature={(_, layer) => { layer.bindTooltip("Maubin Township", { permanent: true, direction: "center", className: "map-label" }); }} />}
-        {!nationwideMode && layers.rivers && riverLayer && <GeoJSON data={riverLayer} style={{ color: "#38bdf8", weight: 2.2, opacity: 0.92 }} />}
-        {!nationwideMode && layers.canals && canalLayer && <GeoJSON data={canalLayer} style={{ color: "#65a30d", weight: 1.4, opacity: 0.88 }} />}
-        {!nationwideMode && historicalFeatures && <GeoJSON data={historicalFeatures} style={{ color: "#a78bfa", weight: 1.4, fillColor: "#7c3aed", fillOpacity: 0.28 }} />}
-        {nationwideMode && filteredNationalRegions && <GeoJSON data={filteredNationalRegions} style={{ color: "#86efac", weight: 0.8, fillColor: "#334155", fillOpacity: 0.22 }} onEachFeature={(feature, layer) => { const name = String(feature.properties?.adm1_name ?? "Myanmar region"); const region = nationalEvidence?.regions?.find(item => item.admin1_pcode === feature.properties?.adm1_pcode); const evidence = region?.evidence_readiness === "historical_source_coverage_only_not_validated_for_prediction" ? "historical source coverage only" : region?.evidence_readiness === "limited_observed_flood_examples" ? "limited historical examples" : "historical source coverage insufficient"; layer.bindTooltip(`${name} · ${evidence} · not a forecast`, { sticky: true, className: "map-label" }); }} />}
+        <FitBounds data={spatial} />
+        {overlayTerrain && <GeoJSON data={overlayTerrain} style={riskStyle} />}
+        {layers.boundary && boundaryLayer && <GeoJSON data={boundaryLayer} style={{ color: "#e2e8f0", weight: 1.6, dashArray: "6 5", fillOpacity: 0 }} />}
+        {layers.labels && boundaryLayer && <GeoJSON data={boundaryLayer} style={{ color: "transparent", weight: 0, fillOpacity: 0 }} onEachFeature={(_, layer) => { layer.bindTooltip("Maubin Township", { permanent: true, direction: "center", className: "map-label" }); }} />}
+        {layers.rivers && riverLayer && <GeoJSON data={riverLayer} style={{ color: "#38bdf8", weight: 2.2, opacity: 0.92 }} />}
+        {layers.canals && canalLayer && <GeoJSON data={canalLayer} style={{ color: "#65a30d", weight: 1.4, opacity: 0.88 }} />}
+        {historicalFeatures && <GeoJSON data={historicalFeatures} style={{ color: "#a78bfa", weight: 1.4, fillColor: "#7c3aed", fillOpacity: 0.28 }} />}
       </MapContainer>
       <div className="map-gradient" />
       <header className="topbar">
-        <div className="brand"><span className="brand-mark"><MapPinned size={17} /></span><div><strong>DeltaWatch</strong><small>{nationwideMode ? "Myanmar coverage index · monitoring only" : "Maubin Township · GeoAI flood intelligence"}</small></div></div>
-        <div className="top-actions"><div className="basemap-switch" aria-label="Basemap selector"><button type="button" className={basemap === "satellite" ? "active" : ""} aria-pressed={basemap === "satellite"} onClick={() => setBasemap("satellite")}>Satellite</button><button type="button" className={basemap === "terrain" ? "active" : ""} aria-pressed={basemap === "terrain"} onClick={() => setBasemap("terrain")}>Terrain</button></div><button className={`nationwide-button ${nationwideMode ? "active" : ""}`} type="button" aria-pressed={nationwideMode} onClick={() => setNationwideMode(current => !current)}><MapPinned size={15} /> Myanmar coverage</button><button className="mobile-layers-button" type="button" aria-label="Open map layers" aria-expanded={mobileControlsOpen} onClick={() => setMobileControlsOpen(true)}><Layers3 size={16} /></button><div className="status-pill"><span className={spatialOnline ? "status-dot online" : "status-dot"} />{spatialOnline ? "Spatial DB online" : "Spatial API connecting"}</div><button className="evidence-button" type="button" onClick={() => setObservationOpen(true)}><Camera size={15} /> Evidence</button><button className="ghost-button" onClick={() => setAboutOpen(true)}><Info size={16} /> Methodology</button></div>
+        <div className="brand"><span className="brand-mark"><MapPinned size={17} /></span><div><strong>DeltaWatch</strong><small>Maubin Township · GeoAI flood intelligence</small></div></div>
+        <div className="top-actions"><div className="basemap-switch" aria-label="Basemap selector"><button type="button" className={basemap === "satellite" ? "active" : ""} aria-pressed={basemap === "satellite"} onClick={() => setBasemap("satellite")}>Satellite</button><button type="button" className={basemap === "terrain" ? "active" : ""} aria-pressed={basemap === "terrain"} onClick={() => setBasemap("terrain")}>Terrain</button></div><button className="mobile-layers-button" type="button" aria-label="Open map layers" aria-expanded={mobileControlsOpen} onClick={() => setMobileControlsOpen(true)}><Layers3 size={16} /></button><div className="status-pill"><span className={spatialOnline ? "status-dot online" : "status-dot"} />{spatialOnline ? "Spatial DB online" : "Spatial API connecting"}</div><button className="evidence-button" type="button" onClick={() => setObservationOpen(true)}><Camera size={15} /> Evidence</button><button className="ghost-button" onClick={() => setAboutOpen(true)}><Info size={16} /> Methodology</button></div>
       </header>
-
-      {nationwideMode && <section className="national-coverage-panel" aria-live="polite"><span className="eyebrow">Nationwide coverage index</span><strong>{nationalLoading ? "Loading Admin 1 boundaries" : `${nationalMetadata?.coverage?.admin1_feature_count ?? 0} Admin 1 regions indexed`}</strong><p>Source geometry is available. Flood prediction, probability, and regional accuracy are not yet assessed.</p><label className="national-filter-label">Region source coverage<select value={nationalCoverageFilter} onChange={event => setNationalCoverageFilter(event.target.value as NationalCoverageFilter)}><option value="all">All Admin 1 regions</option><option value="historical">Historical source coverage only</option><option value="limited">Limited historical examples</option><option value="insufficient">Insufficient historical coverage</option></select></label><small>{filteredNationalRegions ? `${filteredNationalRegions.features.length} region${filteredNationalRegions.features.length === 1 ? "" : "s"} displayed; source coverage is not a risk category.` : "Loading regional source coverage."}</small><div className="national-evidence-readiness"><span>Historical source evidence</span><strong>{nationalEvidence ? `${historicalOnlyRegions} regions with historical coverage only` : "Loading historical coverage summary"}</strong><small>{nationalEvidence?.interpretation ?? "Observed-history summary only; not a forecast."}</small></div><div className="national-evidence-readiness"><span>Upstream-flow readiness</span><strong>{nationalEvidence?.upstream_flow_readiness?.status === "bounded_source_snapshot_available_not_authorized_as_issue_time_feature" ? `${nationalEvidence.upstream_flow_readiness.regions_with_source_snapshot ?? 0} regional source snapshots; not a model feature` : nationalLoading ? "Loading upstream-flow readiness" : "Upstream-flow readiness unavailable"}</strong><small>{nationalEvidence?.upstream_flow_readiness?.reason ?? "No issue-time upstream-flow feature is authorized."}</small></div><div className="national-evidence-readiness"><span>Official issue-time flow access</span><strong>{nationalEvidence?.official_issue_time_flow_access?.status === "access_blocked_dataset_terms_not_accepted" ? "EWDS terms acceptance required" : nationalLoading ? "Loading official-access state" : "Official-access state unavailable"}</strong><small>{nationalEvidence?.official_issue_time_flow_access?.reason ?? "No official issue-time upstream-flow feature is authorized."}</small></div><div className="national-evidence-readiness"><span>Non-login source quality</span><strong>{nationalEvidence?.nonlogin_source_quality?.status === "complete_static_and_rainfall_coverage_with_closed_candidate_gate" ? `${nationalEvidence.nonlogin_source_quality.expected_admin1_region_count ?? 0} regions with static and rainfall coverage; no candidate` : nationalLoading ? "Loading source-quality state" : "Source-quality state unavailable"}</strong><small>{nationalEvidence?.nonlogin_source_quality?.reason ?? "Source quality does not authorize a prediction."}</small></div><div className="national-evidence-readiness"><span>Prospective validation</span><strong>{nationalEvidence?.prospective_validation_readiness?.status === "no_verified_nationwide_prospective_outcomes" ? "No verified nationwide outcomes yet" : nationalLoading ? "Loading prospective validation state" : "Prospective validation state unavailable"}</strong><small>{nationalEvidence?.prospective_validation_readiness?.reason ?? "Prospective validation is required before nationwide model evaluation."}</small></div><div className="national-evidence-readiness"><span>Static context & candidate gate</span><strong>{nationalEvidence?.candidate_gate?.status === "no_fit_authorized" ? "No nationwide candidate fitted" : nationalLoading ? "Loading candidate gate" : "Candidate gate unavailable"}</strong><small>{nationalEvidence?.candidate_gate?.reason ?? nationalEvidence?.static_context?.interpretation ?? "Static source context is not a prediction result."}</small></div><small>{nationalMetadata?.source?.dataset ?? "Boundary source unavailable"}{nationalMetadata?.source?.boundary_valid_on ? ` · valid from ${nationalMetadata.source.boundary_valid_on}` : ""}</small></section>}
 
       <section className={`side-panel controls-panel ${mobileControlsOpen ? "mobile-controls-open" : ""}`} aria-hidden={!mobileControlsOpen && undefined}><div className="panel-heading"><Layers3 size={16} /><span>Layer control</span><button className="mobile-control-close" type="button" aria-label="Close map layers" onClick={() => setMobileControlsOpen(false)}><X size={16} /></button></div>{([ ["floodRisk", "Flood Risk"], ["gridCells", "Grid Cells"], ["historicalFlood", "Historical Flood"], ["rivers", "Rivers"], ["canals", "Canals"], ["boundary", "Township Boundary"], ["labels", "Labels"] ] as Array<[LayerKey, string]>).map(([key, label]) => <label className="layer-row" key={key}><span>{label}</span><button role="switch" aria-checked={layers[key]} className={`toggle ${layers[key] ? "enabled" : ""}`} onClick={() => setLayers(current => ({ ...current, [key]: !current[key] }))}><i /></button></label>)}</section>
 
       <section className="side-panel rainfall-panel"><div className="panel-heading"><CloudRain size={16} /><span>Rainfall watch</span></div><div className="rain-title"><strong>{forecast.reduce((sum, point) => sum + point.precipitationMm, 0).toFixed(1)} mm</strong><span>next 7 days · Open-Meteo</span></div>{weather.isLoading ? <div className="loading-inline"><LoaderCircle size={16} />Loading forecast</div> : <RainBars points={forecast} />}<div className="history-header"><span>30-day ERA5 rainfall history</span><small>mm/day</small></div>{rainHistory.length ? <RainSparkline points={rainHistory} /> : <p className="empty-note">Historical rainfall will populate after the first nightly ERA5 refresh.</p>}<div className={`source-freshness ${rainfallHealth?.state ?? "unavailable"}`} role="status"><div><span>{rainfallHealth?.latestObservedDate ? `ERA5 through ${rainfallHealth.latestObservedDate}` : "ERA5 archive refresh"} · {jobLabel(rainfallJob?.state)}</span><strong>{freshnessLabel(rainfallHealth?.state)}</strong></div></div></section>
 
-      <section className="side-panel hindcast-panel"><div className="panel-heading"><BarChart3 size={16} /><span>Experimental event hindcast</span></div><label className="select-label">Historical GFD event<select value={selectedEvent} onChange={event => setSelectedEvent(event.target.value)}>{events.map(event => <option key={event.id} value={event.id}>{event.start_date} · {event.name}</option>)}</select></label><div className="model-card"><div><span>{hindcast?.model.version ? "HGB v7 · 2018 holdout" : "v7 hydrologic model"}</span><strong>{hindcast?.event.area_km2?.toFixed(1) ?? "—"} km² observed extent</strong></div><div className="metric-pair"><span>Precision <b>{(precision * 100).toFixed(1)}%</b></span><span>Recall <b>{(recall * 100).toFixed(1)}%</b></span></div></div><div className="alert-readiness" aria-label="Alert and prospective monitoring readiness"><div><span>Alert workflow</span><strong>{alertReadiness?.label ?? "Monitoring only"}</strong></div><p>No public alert. Six-hour forecast inputs are logged for prospective validation only.</p><small>{prospectiveState?.label ?? "Prospective input monitoring"} · latest: {prospectiveIssue}{prospectiveState?.targetDate ? ` · target: ${prospectiveState.targetDate}` : ""}</small></div><div className="alert-readiness" aria-label="Local water evidence readiness"><div><span>Local water evidence</span><strong>{localWaterReadiness?.river_stage?.status === "historical_context_only" ? "Historical context only" : "Readiness unavailable"}</strong></div><p>{localWaterReadiness?.river_stage?.historical_context?.record_count ? `${localWaterReadiness.river_stage.historical_context.record_count} Nyaungdon Panhlaing annual-stage records (${localWaterReadiness.river_stage.historical_context.coverage_start}–${localWaterReadiness.river_stage.historical_context.coverage_end}); not a Maubin live gauge.` : "No verified local-water evidence has loaded."}</p><small>{localWaterReadiness?.tide_and_coastal_water?.station_status ?? "Tide/coastal-water source status unavailable"} · {localWaterReadiness?.tide_and_coastal_water?.public_data_status ?? "No public current tide data verified"}</small></div><div className="disclaimer"><ShieldAlert size={15} /><p>Historical hindcast only — 2018 holdout precision {(precision * 100).toFixed(1)}%, recall {(recall * 100).toFixed(1)}%. Local river-stage and tide evidence remain unavailable for a live model. Not a public warning or life-safety decision.</p></div></section>
+      <section className="side-panel hindcast-panel"><div className="panel-heading"><BarChart3 size={16} /><span>Experimental event hindcast</span></div><label className="select-label">Historical GFD event<select value={selectedEvent} onChange={event => setSelectedEvent(event.target.value)}>{events.map(event => <option key={event.id} value={event.id}>{event.start_date} · {event.name}</option>)}</select></label><div className="model-card"><div><span>{hindcast?.model.version ? "HGB v7 · 2018 holdout" : "v7 hydrologic model"}</span><strong>{hindcast?.event.area_km2?.toFixed(1) ?? "—"} km² observed extent</strong></div><div className="metric-pair"><span>Precision <b>{(precision * 100).toFixed(1)}%</b></span><span>Recall <b>{(recall * 100).toFixed(1)}%</b></span></div></div><div className="alert-readiness" aria-label="Alert and prospective monitoring readiness"><div><span>Alert workflow</span><strong>{alertReadiness?.label ?? "Monitoring only"}</strong></div><p>No public alert. Six-hour forecast inputs are logged for prospective validation only.</p><small>{prospectiveState?.label ?? "Prospective input monitoring"} · latest: {prospectiveIssue}{prospectiveState?.targetDate ? ` · target: ${prospectiveState.targetDate}` : ""}</small></div><div className="disclaimer"><ShieldAlert size={15} /><p>Historical hindcast only — 2018 holdout precision {(precision * 100).toFixed(1)}%, recall {(recall * 100).toFixed(1)}%. Not a public warning or life-safety decision.</p></div></section>
 
       <section className="status-bar"><div><Database size={15} /><span>Spatial DB</span><strong>{spatialOnline ? "connected" : "checking"}</strong></div><div><Activity size={15} /><span>Data refresh</span><strong>{overallRefreshState}</strong></div><div><Activity size={15} /><span>Prospective job</span><strong>{freshnessLabel(prospectiveState?.freshness)} · {jobLabel(prospectiveJob?.state)}</strong></div><div><ShieldAlert size={15} /><span>Open alerts</span><strong>{status.data?.openAlerts ?? 0}</strong></div><div><ShieldAlert size={15} /><span>Alert mode</span><strong>{alertReadiness?.label ?? "Monitoring only"}</strong></div><div><Eye size={15} /><span>Risk basis</span><strong>{status.data?.riskBasis ?? "terrain_screening"}</strong></div></section>
       {loading && <div className="map-loader"><LoaderCircle size={24} /><span>Loading 5,549 terrain screening cells</span></div>}
